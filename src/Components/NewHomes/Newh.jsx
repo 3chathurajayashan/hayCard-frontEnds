@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import cv1 from '../../assets/cv1.jpg';
+import cv1 from '../../assets/ch5.jpg';
 import cv2 from '../../assets/ch2.jpg';
 import cv3 from '../../assets/ch1.jpg';
 import labTechIcon from '../../assets/nm.png'; // Lab tech image
