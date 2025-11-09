@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import labTechIcon from "../../assets/labTec.jpg"; // replace with your icon
-
-export default function AIChatBot() {
+import is from '../../assets/po.jpg'
+export default function AIChatBotPage() {
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState([
-    { type: "bot", text: "Hello there! I am Praveen. Send me a reference number to check its availability." }
+    {
+      type: "bot",
+      text: "Hello there! I am Praveen. Send me a reference number to check its availability."
+    }
   ]);
 
   const handleChatSubmit = (e) => {
@@ -12,159 +14,245 @@ export default function AIChatBot() {
     const trimmedInput = chatInput.trim();
     if (!trimmedInput) return;
 
-    // Add user message
     setChatMessages(prev => [...prev, { type: "user", text: trimmedInput }]);
     setChatInput("");
 
-    // Simulate bot response
     setTimeout(() => {
-      let botResponse = "";
-      if (trimmedInput === "7676") {
-        botResponse = "This sample is already finalized!";
-      } else {
-        botResponse = "This sample is not found.";
-      }
+      let botResponse = trimmedInput === "7676" 
+        ? "Your 7676 customer sample is already check out!" 
+        : "This sample is not found. May be its not in yet!";
       setChatMessages(prev => [...prev, { type: "bot", text: botResponse }]);
-    }, 800); // simulate typing delay
+    }, 800);
   };
 
   return (
-    <div className="chatbot">
-      <div className="chatbot-header">
-        <img src={labTechIcon} alt="Lab Assistant" className="chatbot-icon" />
-        <span>Lab Assistant</span>
-      </div>
-
-      <div className="chatbot-messages">
-        {chatMessages.map((msg, i) => (
-          <div
-            key={i}
-            className={`chat-message ${msg.type === "bot" ? "bot" : "user"}`}
-          >
-            {msg.text}
+    <div className="chatbot-page">
+      <div className="chat-container">
+        <header className="chat-header">
+          <img 
+            src={is}
+            alt="Lab Assistant" 
+            className="header-avatar"
+          />
+          <div className="header-info">
+            <h2>Lab Assistant AI</h2>
+            <p>Praveen - Sample Tracker</p>
           </div>
-        ))}
+        </header>
+
+        <div className="messages-container">
+          {chatMessages.map((msg, i) => (
+            <div key={i} className={`message ${msg.type}`}>
+              {msg.type === "bot" && (
+                <img 
+                  src={is}
+                  alt="Bot" 
+                  className="msg-avatar"
+                />
+              )}
+              <div className="message-bubble">
+                {msg.text}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="input-container">
+          <input
+            type="text"
+            value={chatInput}
+            placeholder="Enter reference number..."
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit(e)}
+          />
+          <button onClick={handleChatSubmit}>
+            Send
+          </button>
+        </div>
       </div>
 
-      <form onSubmit={handleChatSubmit} className="chatbot-input">
-        <input
-          type="text"
-          value={chatInput}
-          placeholder="Enter reference number..."
-          onChange={(e) => setChatInput(e.target.value)}
-        />
-        <button type="submit">Send</button>
-      </form>
-
-      {/* Styles */}
       <style>{`
-        .chatbot {
-          position: fixed;
-          bottom: 30px;
-          right: 30px;
-          width: 320px;
-          background: #ffffff;
-          border-radius: 16px;
-          box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .chatbot-page {
+          width: 100%;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+
+        .chat-container {
+          width: 100%;
+          max-width: 600px;
+          height: 700px;
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 8px 40px rgba(0,0,0,0.12);
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          font-family: 'Inter', sans-serif;
-          animation: slideIn 0.8s ease forwards;
-          z-index: 5000;
         }
 
-        @keyframes slideIn {
-          from { transform: translateY(40px) scale(0.9); opacity: 0; }
-          to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-
-        .chatbot-header {
+        .chat-header {
+          background: linear-gradient(135deg, #1e88e5, #1565c0);
+          padding: 20px 24px;
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 12px 16px;
-          background: linear-gradient(135deg, #2c3e50, #34495e);
-          color: white;
-          font-weight: 600;
-          font-size: 1rem;
+          gap: 14px;
         }
 
-        .chatbot-icon {
+        .header-avatar {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: 3px solid white;
+          object-fit: cover;
+        }
+
+        .header-info h2 {
+          color: white;
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 2px;
+        }
+
+        .header-info p {
+          color: rgba(255,255,255,0.85);
+          font-size: 13px;
+        }
+
+        .messages-container {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+          background: #f8f9fa;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .message {
+          display: flex;
+          align-items: flex-end;
+          gap: 10px;
+          animation: messageSlide 0.3s ease;
+        }
+
+        .message.user {
+          flex-direction: row-reverse;
+        }
+
+        .msg-avatar {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          border: 2px solid white;
+          object-fit: cover;
+          flex-shrink: 0;
         }
 
-        .chatbot-messages {
+        .message-bubble {
+          padding: 12px 16px;
+          border-radius: 18px;
+          max-width: 75%;
+          font-size: 15px;
+          line-height: 1.5;
+          word-wrap: break-word;
+        }
+
+        .message.bot .message-bubble {
+          background: white;
+          color: #333;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .message.user .message-bubble {
+          background: #1e88e5;
+          color: white;
+        }
+
+        .input-container {
+          padding: 16px 20px;
+          background: white;
+          border-top: 1px solid #e0e0e0;
+          display: flex;
+          gap: 12px;
+        }
+
+        .input-container input {
           flex: 1;
           padding: 12px 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          max-height: 280px;
-          overflow-y: auto;
-          background: #f5f6fa;
-        }
-
-        .chat-message {
-          padding: 10px 14px;
-          border-radius: 14px;
-          max-width: 80%;
-          animation: fadeIn 0.5s ease;
-        }
-
-        .chat-message.bot {
-          background: #ecf0f1;
-          align-self: flex-start;
-        }
-
-        .chat-message.user {
-          background: #2c3e50;
-          color: white;
-          align-self: flex-end;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .chatbot-input {
-          display: flex;
-          border-top: 1px solid #ddd;
-        }
-
-        .chatbot-input input {
-          flex: 1;
-          padding: 10px 12px;
-          border: none;
+          border: 2px solid #e0e0e0;
+          border-radius: 25px;
+          font-size: 15px;
           outline: none;
-          font-size: 0.95rem;
+          transition: border-color 0.2s;
         }
 
-        .chatbot-input button {
-          padding: 10px 16px;
-          background: #2c3e50;
+        .input-container input:focus {
+          border-color: #1e88e5;
+        }
+
+        .input-container button {
+          padding: 12px 28px;
+          background: #1e88e5;
           color: white;
           border: none;
-          cursor: pointer;
+          border-radius: 25px;
+          font-size: 15px;
           font-weight: 600;
-          transition: background 0.3s ease;
+          cursor: pointer;
+          transition: background 0.2s;
         }
 
-        .chatbot-input button:hover {
-          background: #34495e;
+        .input-container button:hover {
+          background: #1565c0;
         }
 
-        .chatbot-messages::-webkit-scrollbar {
-          width: 6px;
+        .input-container button:active {
+          transform: scale(0.98);
         }
 
-        .chatbot-messages::-webkit-scrollbar-thumb {
-          background: rgba(0,0,0,0.2);
-          border-radius: 3px;
+        @keyframes messageSlide {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .messages-container::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+          background: #bdbdbd;
+          border-radius: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+          background: #9e9e9e;
         }
       `}</style>
     </div>
