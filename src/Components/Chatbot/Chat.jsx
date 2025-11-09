@@ -35,8 +35,8 @@ export default function AIChatBotPage() {
     botResponse = "I am part of HAYCARB Group of Companies.Haycarb, a global pioneer in coconut shell-based activated carbon, continuously innovates with advanced, homegrown technologies to deliver next-generation carbon solutions tailored to customer needs.";
   }
   // Specific sample number
-  else if (lowerInput === "ref number 7676") {
-    botResponse = "Your 7676 customer sample is already check out!";
+  else if (lowerInput === "did you send the sample 7676") {
+    botResponse = "Yes i sent it.Your 7676 customer sample is already check out!";
   }
   // Default fallback
   else {
