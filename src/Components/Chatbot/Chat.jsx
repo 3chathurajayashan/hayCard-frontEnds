@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import is from '../../assets/po.jpg'
+import is from '../../assets/hj.jpg'
 export default function AIChatBotPage() {
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState([
