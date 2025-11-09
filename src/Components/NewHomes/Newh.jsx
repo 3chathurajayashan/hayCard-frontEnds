@@ -20,9 +20,9 @@ export default function Dashboard() {
 
       if (section === "Chemicals") {
         navigate("/chemHome");
-      } else if(section ==="Customer"){
+      } else if(section ==="Customer Sample Management"){
          navigate("/cushome");
-      } else if(section === "Samples"){
+      } else if(section === "Laboratory Testings"){
         navigate("/preSign")
       } else {
         setMessage(`Proceeding to ${section} section...`);
@@ -102,12 +102,12 @@ export default function Dashboard() {
             image:  cv1
           },
           { 
-            title: "Samples", 
+            title: "Laboratory Testings", 
             desc: "Analyze, record, and manage lab sample data easily.",
             image:  cv2
           },
           { 
-            title: "Customer", 
+            title: "Customer Sample Management", 
             desc: "The process of receiving samples per shipment for the customer",
             image: cv3
           },
