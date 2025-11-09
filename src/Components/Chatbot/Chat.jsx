@@ -18,33 +18,79 @@ export default function AIChatBotPage() {
     setChatInput("");
 
  setTimeout(() => {
-  const lowerInput = trimmedInput.toLowerCase(); // normalize input
+  const lowerInput = trimmedInput.toLowerCase().trim();
   let botResponse = "";
 
   // Greeting
   if (["hey", "hi", "hello"].includes(lowerInput)) {
     botResponse = "Hello! How can I help you today?";
   }
+
   // Asking about time
   else if (lowerInput.includes("time") || lowerInput.includes("now")) {
     const now = new Date();
     botResponse = `Current time is ${now.toLocaleTimeString()}.`;
   }
+
   // Asking about company
   else if (lowerInput.includes("company") || lowerInput.includes("who are you")) {
-    botResponse = "I am part of HAYCARB Group of Companies.Haycarb, a global pioneer in coconut shell-based activated carbon, continuously innovates with advanced, homegrown technologies to deliver next-generation carbon solutions tailored to customer needs.";
-  }
-  // Specific sample number
-  else if (lowerInput === "did you send the sample 7676") {
-    botResponse = "Yes i sent it.Your 7676 customer sample is already check out!";
-  }
-  // Default fallback
-  else {
-    botResponse = "Sorry, I couldn't understand that. Can you rephrase?";
+    botResponse =
+      "I am part of HAYCARB Group of Companies. Haycarb is a global pioneer in coconut shell-based activated carbon, continuously innovating with advanced, homegrown technologies to deliver next-generation carbon solutions tailored to customer needs.";
   }
 
-  setChatMessages(prev => [...prev, { type: "bot", text: botResponse }]);
+  // 🔹 Q1
+  else if (
+    lowerInput.includes("sample ref no 0001") &&
+    lowerInput.includes("hcm lab") &&
+    lowerInput.includes("ho lab")
+  ) {
+    botResponse =
+      "The sample was received at HO Labs on 2025:11:02 at 2:00 PM. It is for Prop 65 analysis.";
+  }
+
+  // 🔹 Q2
+  else if (
+    lowerInput.includes("results") &&
+    lowerInput.includes("ref no 001") &&
+    lowerInput.includes("prop 65")
+  ) {
+    botResponse =
+      "Al = 12 ppb , As = <2 ppb , Sb = <2 ppb";
+  }
+
+  // 🔹 Q3
+  else if (
+    lowerInput.includes("sample ref no 001") &&
+    lowerInput.includes("sent to the customer")
+  ) {
+    botResponse =
+      " Yes, the sample was delivered to Curiou by HO Lab at 4:35 PM on 2025:11:09";
+  }
+
+  // 🔹 Q4
+  else if (
+    lowerInput.includes("five liters of nitric acid") &&
+    !lowerInput.includes("purchase order number 005")
+  ) {
+    botResponse =
+      "There are still 20 liters of nitric acid available for your use.";
+  }
+
+  // 🔹 Q5
+  else if (lowerInput.includes("purchase order number 005")) {
+    botResponse =
+      " It has been purchased by the Purchase Manager and will be delivered to you within five days.";
+  }
+
+  // Default fallback
+  else {
+    botResponse =
+      "Sorry, I couldn't understand that. Can you please rephrase?";
+  }
+
+  setChatMessages((prev) => [...prev, { type: "bot", text: botResponse }]);
 }, 800);
+
 
 
   };

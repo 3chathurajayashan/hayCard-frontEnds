@@ -51,10 +51,9 @@ export default function FactoryDashboard() {
  
 
 // ... your other imports
-
 const generatePDF = (sample) => {
   const doc = new jsPDF();
-  
+
   // Add company header
   doc.setFillColor(141, 198, 63); // Haycarb green
   doc.rect(0, 0, 210, 30, 'F');
@@ -64,20 +63,20 @@ const generatePDF = (sample) => {
   doc.text('HAYCARB PLC', 105, 15, { align: 'center' });
   doc.setFontSize(14);
   doc.text('SAMPLE ANALYSIS REPORT', 105, 25, { align: 'center' });
-  
+
   // Reset text color for content
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  
+
   let yPosition = 40;
-  
-  // Sample Information Section
+
+  // Sample Information
   doc.setFont('helvetica', 'bold');
   doc.text('SAMPLE INFORMATION', 14, yPosition);
   doc.setFont('helvetica', 'normal');
   yPosition += 8;
-  
+
   const sampleInfo = [
     `Request Reference No: ${sample.requestRefNo || 'N/A'}`,
     `Sample Reference No: ${sample.sampleRefNo || 'N/A'}`,
@@ -88,7 +87,7 @@ const generatePDF = (sample) => {
     `Sample IN Time: ${sample.sampleInTime || 'N/A'}`,
     `Gate Pass No: ${sample.gatePassNo || 'N/A'}`
   ];
-  
+
   sampleInfo.forEach(info => {
     if (yPosition > 270) {
       doc.addPage();
@@ -97,15 +96,15 @@ const generatePDF = (sample) => {
     doc.text(info, 16, yPosition);
     yPosition += 6;
   });
-  
+
   yPosition += 4;
-  
-  // Laboratory Information Section
+
+  // Laboratory Information
   doc.setFont('helvetica', 'bold');
   doc.text('LABORATORY INFORMATION', 14, yPosition);
   doc.setFont('helvetica', 'normal');
   yPosition += 8;
-  
+
   const labInfo = [
     `Sample Received Date: ${sample.sampleReceivedDate || sample.receivedDate || 'N/A'}`,
     `Sample Received Time: ${sample.sampleReceivedTime || sample.receivedTime || 'N/A'}`,
@@ -113,7 +112,7 @@ const generatePDF = (sample) => {
     `Test Method: ${sample.testMethod || 'N/A'}`,
     `Analysed By: ${sample.analysedBy || 'N/A'}`
   ];
-  
+
   labInfo.forEach(info => {
     if (yPosition > 270) {
       doc.addPage();
@@ -122,67 +121,61 @@ const generatePDF = (sample) => {
     doc.text(info, 16, yPosition);
     yPosition += 6;
   });
-  
+
   yPosition += 4;
-  
+
   // Results Section
   doc.setFont('helvetica', 'bold');
   doc.text('ANALYSIS RESULTS (PPB)', 14, yPosition);
   doc.setFont('helvetica', 'normal');
   yPosition += 8;
-  
-  // Create results table
+
   const results = sample.results;
-  if (results) {
-    if (Array.isArray(results)) {
-      // Multiple results
-      doc.text('Multiple Results:', 16, yPosition);
+
+  if (results && results.length > 0) {
+    // Table header
+    doc.setFont('helvetica', 'bold');
+    doc.text('Row', 16, yPosition);
+    doc.text('As', 36, yPosition);
+    doc.text('Sb', 56, yPosition);
+    doc.text('Al', 76, yPosition);
+    doc.text('Analysed By', 96, yPosition);
+    doc.text('Completed Date', 136, yPosition);
+    doc.setFont('helvetica', 'normal');
+    yPosition += 6;
+
+    results.forEach((result, index) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`${index + 1}`, 16, yPosition);
+      doc.text(`${result.As_ppb || '-'}`, 36, yPosition);
+      doc.text(`${result.Sb_ppb || '-'}`, 56, yPosition);
+      doc.text(`${result.Al_ppb || '-'}`, 76, yPosition);
+      doc.text(`${sample.analysedBy || '-'}`, 96, yPosition);
+      doc.text(`${sample.completedDate || '-'}`, 136, yPosition);
       yPosition += 6;
-      
-      results.forEach((result, index) => {
-        if (yPosition > 270) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.text(`Row ${index + 1}: As: ${result.As_ppb || '-'}, Sb: ${result.Sb_ppb || '-'}, Al: ${result.Al_ppb || '-'}`, 20, yPosition);
-        yPosition += 6;
-      });
-    } else {
-      // Single result
-      const resultText = [
-        `Arsenic (As): ${results.As_ppb || '-'} ppb`,
-        `Antimony (Sb): ${results.Sb_ppb || '-'} ppb`,
-        `Aluminum (Al): ${results.Al_ppb || '-'} ppb`
-      ];
-      
-      resultText.forEach(text => {
-        if (yPosition > 270) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.text(text, 16, yPosition);
-        yPosition += 6;
-      });
-    }
+    });
   } else {
     doc.text('No results available', 16, yPosition);
     yPosition += 6;
   }
-  
+
   yPosition += 8;
-  
+
   // Completion Information
   doc.setFont('helvetica', 'bold');
   doc.text('COMPLETION DETAILS', 14, yPosition);
   doc.setFont('helvetica', 'normal');
   yPosition += 8;
-  
+
   const completionInfo = [
     `Completion Date: ${sample.completedDate || 'N/A'}`,
     `Completion Time: ${sample.completedTime || 'N/A'}`,
     `Status: ${sample.isFinalized ? 'FINALIZED' : 'PENDING'}`
   ];
-  
+
   completionInfo.forEach(info => {
     if (yPosition > 270) {
       doc.addPage();
@@ -191,7 +184,7 @@ const generatePDF = (sample) => {
     doc.text(info, 16, yPosition);
     yPosition += 6;
   });
-  
+
   // Footer
   const currentDate = new Date().toLocaleDateString();
   doc.setFontSize(8);
@@ -199,11 +192,12 @@ const generatePDF = (sample) => {
   doc.text(`Generated on: ${currentDate}`, 14, 285);
   doc.text(`Sample ID: ${sample.sampleId || sample._id}`, 105, 285, { align: 'center' });
   doc.text('Haycarb PLC - Laboratory Division', 196, 285, { align: 'right' });
-  
-  // Save the PDF
+
+  // Save PDF
   const fileName = `Sample_Report_${sample.sampleRefNo || sample.requestRefNo || sample._id}.pdf`;
-  doc.save(fileName);
+  doc.save(fileName); // This triggers the download
 };
+
 
   const generateQR = async (sample) => {
     try {

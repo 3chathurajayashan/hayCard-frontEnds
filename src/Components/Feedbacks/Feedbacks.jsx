@@ -8,26 +8,26 @@ const FeedbackSlider = () => {
 
   const feedbacks = [
     {
-      name: "chiranga",
-      role: "Product Manager at TechFlow",
+      name: "Mr.Ranjith Kariyawasham",
+      role: "Managering Director",
       content: "The innovation and dedication brought to our project was remarkable. Every detail was crafted with precision and care.",
       rating: 5
     },
     {
-      name: "chathura jayashan",
-      role: "CEO at StartupHub",
+      name: "Mr.Udaya Kumara",
+      role: "Director R&D",
       content: "From concept to execution, the journey was seamless. They turned our ambitious vision into reality with exceptional skill.",
       rating: 5
     },
     {
-      name: "Bineth ellepola",
-      role: "Design Lead at Pixel Studios",
+      name: "Mr.Shishira Jayakodi",
+      role: "Deputy general manager R&D",
       content: "Outstanding collaboration and creativity. The results exceeded our expectations and delivered measurable impact to our business.",
       rating: 5
     },
     {
-      name: "Jayathma chanduupa",
-      role: "CTO at DataCore",
+      name: "Mr.Praveen Chiranga",
+      role: "executive R&D",
       content: "Technical excellence combined with strategic thinking. They understood our challenges and provided solutions that truly work.",
       rating: 5
     },
