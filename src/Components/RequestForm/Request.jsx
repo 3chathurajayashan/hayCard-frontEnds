@@ -43,7 +43,7 @@ export default function ChemicalRequestPage() {
   const fetchChemicals = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://hay-card-back-end.vercel.app/api/chemicals/all");
+      const response = await fetch("https://hay-card-back-end-iota.vercel.app/api/chemicals/all");
       const data = await response.json();
       setChemicals(data);
     } catch (error) {
@@ -84,7 +84,7 @@ export default function ChemicalRequestPage() {
         handOverRange: formData.handOverRange,
       };
 
-      await fetch("https://hay-card-back-end.vercel.app/api/chemicals/add", {
+      await fetch("https://hay-card-back-end-iota.vercel.app/api/chemicals/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

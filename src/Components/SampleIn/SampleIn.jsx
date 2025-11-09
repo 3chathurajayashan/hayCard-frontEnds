@@ -20,7 +20,7 @@ export default function SamplePage() {
 
   const fetchSamples = async () => {
     try {
-      const res = await axios.get("https://hay-card-back-end.vercel.app/api/cusSamples");
+      const res = await axios.get("https://hay-card-back-end-iota.vercel.app/api/cusSamples");
       setSamples(res.data);
     } catch (err) {
       console.log(err);
@@ -43,7 +43,7 @@ export default function SamplePage() {
 
     try {
       const res = await axios.post(
-        "https://hay-card-back-end.vercel.app/api/cusSamples/add",
+        "https://hay-card-back-end-iota.vercel.app/api/cusSamples/add",
         formData
       );
       setMessage({ text: res.data.message, type: "success" });
@@ -62,7 +62,7 @@ export default function SamplePage() {
   const handleDelete = async (ref) => {
     if (!window.confirm("Are you sure you want to delete this sample?")) return;
     try {
-      const res = await axios.delete(`https://hay-card-back-end.vercel.app/api/cusSamples/${ref}`);
+      const res = await axios.delete(`https://hay-card-back-end-iota.vercel.app/api/cusSamples/${ref}`);
       setMessage({ text: res.data.message, type: "success" });
       fetchSamples();
     } catch (err) {

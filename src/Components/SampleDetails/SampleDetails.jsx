@@ -24,7 +24,7 @@ export default function SampleDetails() {
       }
 
       try {
-        const res = await axios.get(`https://hay-card-back-end.vercel.app/api/samples/public/${id}`);
+        const res = await axios.get(`https://hay-card-back-end-iota.vercel.app/api/samples/public/${id}`);
         setSample(res.data);
       } catch (err) {
         console.error("Error fetching sample:", err);
