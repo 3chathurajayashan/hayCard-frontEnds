@@ -118,7 +118,7 @@ export default function ChemicalStorage() {
 
               <label className="reminder-check">
                 <input type="checkbox" name="emailReminder" checked={newChem.emailReminder} onChange={handleChange} />
-                Remind me by email (chathurachamod88@gmail.com)
+                Remind me by email (pcf@haycarb.com)
               </label>
 
               <div className="form-buttons">
