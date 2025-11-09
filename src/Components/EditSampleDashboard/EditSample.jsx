@@ -30,7 +30,7 @@ export default function LabAdminDashboard() {
   const fetchSamples = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("https://hay-card-back-end.vercel.app/api/samples", {
+      const res = await axios.get("https://hay-card-back-end-iota.vercel.app/api/samples", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSamples(res.data);

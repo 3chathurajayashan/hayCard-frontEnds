@@ -37,7 +37,7 @@ export default function FactoryDashboard() {
   const fetchSamples = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("https://hay-card-back-end.vercel.app/api/samples", {
+      const res = await axios.get("https://hay-card-back-end-iota.vercel.app/api/samples", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSamples(res.data);
@@ -209,7 +209,7 @@ const generatePDF = (sample) => {
     try {
       // Append sample ID only (public access for QR)
       // QR points to public route
-    const url = `https://hay-card-front-end.vercel.app/samples/public/${sample._id}`;
+    const url = `https://hay-card-front-ends-nine.vercel.app/samples/public/${sample._id}`;
 
   
       const qrDataUrl = await QRCode.toDataURL(url);
@@ -275,7 +275,7 @@ const generatePDF = (sample) => {
     e.preventDefault();
     try {
       setCreating(true);
-      await axios.post("https://hay-card-back-end.vercel.app/api/samples", form, {
+      await axios.post("https://hay-card-back-end-iota.vercel.app/api/samples", form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -310,7 +310,7 @@ const generatePDF = (sample) => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this sample?")) return;
     try {
-      await axios.delete(`https://hay-card-back-end.vercel.app/api/samples/${id}`, {
+      await axios.delete(`https://hay-card-back-end-iota.vercel.app/api/samples/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchSamples();
