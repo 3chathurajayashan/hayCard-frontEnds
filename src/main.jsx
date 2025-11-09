@@ -20,6 +20,7 @@ import SampleIn from './Components/SampleIn/SampleIn.jsx'
 import SampleAssign from './Components/SampleAssigns/Assign.jsx';
  import Sampleout from './Components/SampleOuts/Sampleout.jsx'
 import PublicSample from './Components/PublicSample.jsx';
+import Chat from './Components/Chatbot/Chat.jsx'
 const router = createBrowserRouter([
 
   {
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
    {
     path:"/sampleout",
     element: <Sampleout />,
+  },
+   {
+    path:"/chatbot",
+    element: <Chat />,
   },
   
    {

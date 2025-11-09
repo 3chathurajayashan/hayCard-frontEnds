@@ -183,7 +183,7 @@ export default function ReferenceForm() {
 
         <motion.div className="card" initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }}>
           <div className="header">
-            <h1 className="title">Reference Submission</h1>
+            <h1 className="title">Assign Samples</h1>
             <p className="subtitle">Submit your reference documents securely and efficiently</p>
           </div>
 
@@ -238,7 +238,7 @@ export default function ReferenceForm() {
 
         <div className="card">
           <h2 className="section-title">
-            Submitted References <span className="note-badge">Assign Samples</span>
+            Submitted Samples & References <span className="note-badge">Assign Samples</span>
           </h2>
 
           {fetchingReferences ? (

@@ -130,31 +130,8 @@ export default function ChemicalRequestPage() {
         
         body {
           font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-          background-attachment: fixed;
+          background: #FF9720;
           min-height: 100vh;
-          position: relative;
-          overflow-x: hidden;
-        }
-
-        body::before {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: 
-            radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 40% 20%, rgba(102, 126, 234, 0.3) 0%, transparent 50%);
-          animation: bgShift 15s ease infinite;
-          pointer-events: none;
-        }
-
-        @keyframes bgShift {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.1); }
         }
 
         .page-container {
@@ -163,39 +140,19 @@ export default function ChemicalRequestPage() {
           align-items: center;
           justify-content: start;
           min-height: 100vh;
-          padding: 50px 20px;
+          padding: 40px 20px;
           position: relative;
-          z-index: 1;
         }
 
         .form-container {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          padding: 45px;
-          border-radius: 24px;
-          max-width: 580px;
+          background: white;
+          padding: 40px;
+          border-radius: 16px;
+          max-width: 500px;
           width: 100%;
-          box-shadow: 
-            0 20px 60px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          position: relative;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
           margin-bottom: 40px;
-          animation: floatIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          transform-origin: center;
-        }
-
-        @keyframes floatIn {
-          from { 
-            opacity: 0; 
-            transform: translateY(40px) scale(0.95);
-            filter: blur(10px);
-          }
-          to { 
-            opacity: 1; 
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-          }
         }
 
         .back-btn {
@@ -205,158 +162,114 @@ export default function ChemicalRequestPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: #3b82f6;
           border: none;
-          border-radius: 50%;
-          width: 42px;
-          height: 42px;
+          border-radius: 8px;
+          width: 40px;
+          height: 40px;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+          transition: all 0.2s ease;
           color: white;
         }
 
         .back-btn:hover {
-          transform: translateX(-3px) scale(1.05);
-          box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
-        }
-
-        .back-btn:active {
-          transform: translateX(-3px) scale(0.95);
+          background: #2563eb;
+          transform: translateX(-2px);
         }
 
         .header-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 70px;
-          height: 70px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          background: #3b82f6;
+          border-radius: 12px;
           margin: 0 auto 20px;
-          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-          animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
         }
 
         .title {
-          font-size: 32px;
-          font-weight: 800;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          font-size: 28px;
+          font-weight: 700;
+          color: #1e293b;
           text-align: center;
           margin-bottom: 8px;
-          letter-spacing: -0.5px;
         }
 
         .subtitle {
           color: #64748b;
-          font-size: 15px;
+          font-size: 14px;
           text-align: center;
           margin-bottom: 30px;
-          font-weight: 500;
         }
 
         label {
           font-weight: 600;
           color: #374151;
           display: block;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
           font-size: 14px;
-          letter-spacing: 0.3px;
         }
 
         .required::after {
           content: " *";
           color: #ef4444;
-          font-weight: 700;
         }
 
         input, select {
           width: 100%;
-          padding: 14px 16px;
-          font-size: 15px;
-          border: 2px solid #e5e7eb;
-          border-radius: 12px;
-          margin-bottom: 22px;
+          padding: 12px 14px;
+          font-size: 14px;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          margin-bottom: 20px;
           outline: none;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.2s ease;
           background: white;
           font-family: inherit;
         }
 
         input:hover, select:hover {
-          border-color: #c7d2fe;
+          border-color: #9ca3af;
         }
 
         input:focus, select:focus {
-          border-color: #667eea;
-          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-          transform: translateY(-1px);
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .submit-btn {
           width: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: #3b82f6;
           color: white;
-          font-weight: 700;
-          font-size: 16px;
-          padding: 16px 0;
+          font-weight: 600;
+          font-size: 15px;
+          padding: 14px 0;
           border: none;
-          border-radius: 12px;
+          border-radius: 8px;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-          box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-          letter-spacing: 0.5px;
-        }
-
-        .submit-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-          transition: left 0.5s;
-        }
-
-        .submit-btn:hover:not(:disabled)::before {
-          left: 100%;
+          transition: all 0.2s ease;
         }
 
         .submit-btn:hover:not(:disabled) {
-          transform: translateY(-3px);
-          box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
-        }
-
-        .submit-btn:active:not(:disabled) {
-          transform: translateY(-1px);
+          background: #2563eb;
         }
 
         .submit-btn:disabled {
-          opacity: 0.7;
+          opacity: 0.6;
           cursor: not-allowed;
         }
 
         .loading-spinner {
-          width: 18px;
-          height: 18px;
-          border: 3px solid rgba(255,255,255,0.3);
-          border-top: 3px solid #fff;
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top: 2px solid #fff;
           border-radius: 50%;
-          animation: spin 0.7s linear infinite;
+          animation: spin 0.8s linear infinite;
           display: inline-block;
           vertical-align: middle;
-          margin-right: 10px;
+          margin-right: 8px;
         }
 
         @keyframes spin {
@@ -370,54 +283,37 @@ export default function ChemicalRequestPage() {
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+          background: white;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          z-index: 100;
-          backdrop-filter: blur(10px);
-        }
-
-        .loader-content {
-          text-align: center;
+          z-index: 1000;
         }
 
         .loader-spinner {
-          width: 60px;
-          height: 60px;
-          border: 5px solid rgba(255,255,255,0.2);
-          border-top: 5px solid #fff;
+          width: 40px;
+          height: 40px;
+          border: 3px solid #f1f5f9;
+          border-top: 3px solid #3b82f6;
           border-radius: 50%;
-          animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-          margin: 0 auto 20px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 16px;
         }
 
         .loader-text {
-          color: white;
-          font-size: 16px;
-          font-weight: 600;
-          animation: fadeInOut 1.5s ease-in-out infinite;
-        }
-
-        @keyframes fadeInOut {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
+          color: #64748b;
+          font-size: 14px;
         }
 
         .table-container {
           width: 100%;
-          max-width: 950px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border-radius: 24px;
+          max-width: 900px;
+          background: white;
+          border-radius: 16px;
           padding: 30px;
-          box-shadow: 
-            0 20px 60px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          animation: floatIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
-          opacity: 0;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
         }
 
         .table-header {
@@ -428,195 +324,127 @@ export default function ChemicalRequestPage() {
         }
 
         .table-header h2 {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          font-size: 24px;
-          font-weight: 800;
+          color: #1e293b;
+          font-size: 20px;
+          font-weight: 700;
           margin: 0;
         }
 
         table {
           width: 100%;
-          border-collapse: separate;
-          border-spacing: 0 8px;
+          border-collapse: collapse;
           text-align: left;
         }
 
-        thead tr {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 12px;
+        thead {
+          background: #f8fafc;
+          border-bottom: 2px solid #e2e8f0;
         }
 
         th {
-          padding: 16px 14px;
-          color: white;
-          font-weight: 700;
-          font-size: 13px;
+          padding: 12px 16px;
+          color: #475569;
+          font-weight: 600;
+          font-size: 12px;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
-        }
-
-        th:first-child {
-          border-top-left-radius: 12px;
-          border-bottom-left-radius: 12px;
-        }
-
-        th:last-child {
-          border-top-right-radius: 12px;
-          border-bottom-right-radius: 12px;
+          letter-spacing: 0.5px;
         }
 
         tbody tr {
-          background: white;
-          border-radius: 12px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          border-bottom: 1px solid #f1f5f9;
+          transition: background-color 0.2s ease;
         }
 
         tbody tr:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+          background: #f8fafc;
         }
 
         td {
-          padding: 16px 14px;
+          padding: 16px;
           color: #475569;
           font-size: 14px;
           font-weight: 500;
-        }
-
-        td:first-child {
-          border-top-left-radius: 12px;
-          border-bottom-left-radius: 12px;
-          font-weight: 600;
-          color: #1e293b;
-        }
-
-        td:last-child {
-          border-top-right-radius: 12px;
-          border-bottom-right-radius: 12px;
         }
 
         .empty-state {
           text-align: center;
           padding: 60px 20px;
           color: #94a3b8;
-          font-size: 15px;
+          font-size: 14px;
         }
 
         .empty-icon {
-          font-size: 48px;
+          font-size: 40px;
           margin-bottom: 16px;
-          opacity: 0.4;
+          opacity: 0.5;
         }
 
         .notification {
           position: fixed;
-          top: 30px;
-          right: 30px;
+          top: 20px;
+          right: 20px;
           background: white;
-          padding: 18px 24px;
-          border-radius: 16px;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-          font-size: 15px;
-          font-weight: 600;
+          padding: 16px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+          font-size: 14px;
+          font-weight: 500;
           display: flex;
           align-items: center;
           gap: 12px;
           z-index: 1000;
-          animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          min-width: 300px;
-          border-left: 5px solid;
-        }
-
-        @keyframes slideInRight {
-          from { 
-            opacity: 0; 
-            transform: translateX(100px);
-          }
-          to { 
-            opacity: 1; 
-            transform: translateX(0);
-          }
+          border-left: 4px solid;
         }
 
         .notification.success {
           border-left-color: #10b981;
           color: #065f46;
-          background: linear-gradient(to right, #d1fae5, white);
+          background: #f0fdf4;
         }
 
         .notification.error {
           border-left-color: #ef4444;
           color: #991b1b;
-          background: linear-gradient(to right, #fee2e2, white);
+          background: #fef2f2;
         }
 
         .notification.info {
           border-left-color: #3b82f6;
           color: #1e40af;
-          background: linear-gradient(to right, #dbeafe, white);
+          background: #eff6ff;
         }
 
         @media (max-width: 768px) {
           .form-container, .table-container {
-            padding: 30px 20px;
+            padding: 24px 20px;
           }
 
           .title {
-            font-size: 26px;
+            font-size: 24px;
           }
 
           .notification {
             right: 15px;
             left: 15px;
-            min-width: auto;
           }
-        }
-
-        /* Smooth scrollbar */
-        ::-webkit-scrollbar {
-          width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
       `}</style>
 
       {loading && (
         <div className="page-loader">
-          <div className="loader-content">
-            <div className="loader-spinner"></div>
-            <div className="loader-text">Loading your data...</div>
-          </div>
+          <div className="loader-spinner"></div>
+          <div className="loader-text">Loading...</div>
         </div>
       )}
 
       <div className="page-container">
-        <motion.div 
-          className="form-container"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        >
+        <div className="form-container">
           <button className="back-btn" onClick={goBack} title="Go Back">
-            <FaArrowLeft size={18} />
+            <FaArrowLeft size={16} />
           </button>
 
           <div className="header-icon">
-            <FaFlask size={34} color="white" />
+            <FaFlask size={24} color="white" />
           </div>
 
           <h1 className="title">Chemical Request Form</h1>
@@ -644,7 +472,7 @@ export default function ChemicalRequestPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <input
                     type="text"
@@ -698,16 +526,11 @@ export default function ChemicalRequestPage() {
               )}
             </button>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div 
-          className="table-container"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-        >
+        <div className="table-container">
           <div className="table-header">
-            <FaFlask size={24} color="#667eea" />
+            <FaFlask size={20} color="#3b82f6" />
             <h2>Requested Chemicals</h2>
           </div>
 
@@ -727,30 +550,23 @@ export default function ChemicalRequestPage() {
                 </tr>
               </thead>
               <tbody>
-                <AnimatePresence>
-                  {chemicals.map((chem, index) => (
-                    <motion.tr
-                      key={chem._id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ 
-                        duration: 0.4, 
-                        delay: index * 0.05,
-                        ease: "easeOut" 
-                      }}
-                    >
-                      <td>{chem.chemicalName}</td>
-                      <td>{chem.quantity}</td>
-                      <td>{chem.handOverRange}</td>
-                      <td>{new Date(chem.createdAt).toLocaleDateString()}</td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
+                {chemicals.map((chem, index) => (
+                  <motion.tr
+                    key={chem._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <td>{chem.chemicalName}</td>
+                    <td>{chem.quantity}</td>
+                    <td>{chem.handOverRange}</td>
+                    <td>{new Date(chem.createdAt).toLocaleDateString()}</td>
+                  </motion.tr>
+                ))}
               </tbody>
             </table>
           )}
-        </motion.div>
+        </div>
 
         <AnimatePresence>
           {showNotification && (
@@ -759,7 +575,7 @@ export default function ChemicalRequestPage() {
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 100 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.2 }}
             >
               {getNotificationIcon()}
               <span>{message}</span>
