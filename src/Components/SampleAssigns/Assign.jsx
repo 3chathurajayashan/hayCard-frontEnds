@@ -10,6 +10,7 @@ export default function ReferenceForm() {
   const [fetchingReferences, setFetchingReferences] = useState(true);
   const [notification, setNotification] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 New state for search
 
   const BASE_URL = "https://hay-card-back-end-iota.vercel.app/api/reference";
 
@@ -73,21 +74,21 @@ export default function ReferenceForm() {
     showNotification("Download started", "info");
   };
 
+  // 🔍 Filter references based on search term
+  const filteredReferences = references.filter((ref) =>
+    ref.refNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
       <style>{`
         * { box-sizing:border-box; margin:0; padding:0; font-family: 'Poppins', sans-serif; }
         body { background: #f8fafc; min-height:100vh; color:#1f2937; }
-
         .container { max-width: 900px; margin: 0 auto; padding: 50px 20px; display:flex; flex-direction:column; gap:30px; }
-
-        /* Page loader */
         .page-loader { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(248,250,252,0.9);
           display:flex; align-items:center; justify-content:center; z-index:2000; }
         .page-loader .spinner { width:50px; height:50px; border:5px solid rgba(59,130,246,0.2); border-top-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Card */
         .card {
           background: #fff;
           border-radius: 16px;
@@ -98,19 +99,14 @@ export default function ReferenceForm() {
           transition: all 0.4s ease;
         }
         .card:hover { transform: translateY(-3px); box-shadow:0 15px 35px rgba(59,130,246,0.2); }
-
         .header { margin-bottom: 25px; }
         .title { font-size:28px; font-weight:700; color:#1e3a8a; margin-bottom:5px; }
         .subtitle { font-size:14px; color:#475569; }
-
-        /* Form */
         .form-group { margin-bottom:20px; display:flex; flex-direction:column; }
         .label { font-weight:600; color:#1e293b; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
         .note-badge { font-size:11px; font-weight:600; background:#3b82f6; color:#fff; padding:2px 6px; border-radius:10px; }
         .input { padding:12px 16px; border-radius:10px; border:1.5px solid #cbd5e1; outline:none; transition: all 0.3s; font-size:14px; }
         .input:focus { border-color:#3b82f6; box-shadow:0 0 10px rgba(59,130,246,0.15); }
-
-        /* File input */
         .file-input-wrapper { position:relative; }
         .file-input-label {
           display:flex; align-items:center; justify-content:center; padding:18px; border:2px dashed #3b82f6; border-radius:10px;
@@ -119,8 +115,6 @@ export default function ReferenceForm() {
         .file-input-label:hover { background:#e0f2fe; border-color:#2563eb; }
         .file-input { position:absolute; opacity:0; cursor:pointer; }
         .file-name { margin-top:8px; font-size:13px; color:#1e40af; font-weight:600; }
-
-        /* Button */
         .submit-btn {
           width:100%; padding:14px; background: linear-gradient(135deg,#3b82f6,#60a5fa); color:#fff;
           border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer;
@@ -128,13 +122,9 @@ export default function ReferenceForm() {
         }
         .submit-btn:disabled { opacity:0.7; cursor:not-allowed; }
         .submit-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 20px rgba(59,130,246,0.25); }
-
         .loader { width:16px; height:16px; border:3px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; }
-
-        /* Reference list */
         .section-title { font-size:20px; font-weight:700; color:#1e3a8a; margin-bottom:15px; display:flex; align-items:center; gap:8px; }
         .reference-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
-
         .reference-item {
           background:#f1f5f9; padding:14px 18px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;
           transition:all 0.3s; position:relative; overflow:hidden; border-left:4px solid #3b82f6;
@@ -143,13 +133,15 @@ export default function ReferenceForm() {
         .reference-number { font-weight:600; color:#1e293b; }
         .download-btn { padding:6px 14px; background: linear-gradient(135deg,#3b82f6,#60a5fa); color:#fff; border:none; border-radius:8px; cursor:pointer; transition:all 0.3s; font-size:13px; font-weight:600; }
         .download-btn:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(59,130,246,0.2); }
-
-        /* Skeleton loader */
+        .search-bar { margin-bottom: 20px; }
+        .search-input {
+          width:100%; padding:12px 16px; border-radius:10px; border:1.5px solid #cbd5e1; outline:none; font-size:14px;
+          transition: all 0.3s;
+        }
+        .search-input:focus { border-color:#3b82f6; box-shadow:0 0 10px rgba(59,130,246,0.15); }
         .skeleton-loader { background: linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%); background-size:200% 100%;
           animation: shimmer 1.5s infinite; border-radius:12px; height:60px; }
         @keyframes shimmer { 0%{ background-position:200% 0; } 100%{ background-position:-200% 0; } }
-
-        /* Notifications */
         .notification { position:fixed; top:20px; right:20px; padding:14px 20px; border-radius:12px; font-weight:600; font-size:13px;
           box-shadow:0 10px 30px rgba(0,0,0,0.1); display:flex; align-items:center; gap:8px; border:2px solid; animation:slideIn 0.4s ease-out; z-index:1000;
         }
@@ -241,6 +233,17 @@ export default function ReferenceForm() {
             Submitted Samples & References <span className="note-badge">Assign Samples</span>
           </h2>
 
+          {/* 🔍 Search Bar */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search by reference number..."
+              className="search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
           {fetchingReferences ? (
             <>
               <div className="skeleton-loader"></div>
@@ -250,12 +253,12 @@ export default function ReferenceForm() {
           ) : (
             <ul className="reference-list">
               <AnimatePresence>
-                {references.length === 0 ? (
+                {filteredReferences.length === 0 ? (
                   <motion.li initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
-                    No references submitted yet
+                    No matching references found
                   </motion.li>
                 ) : (
-                  references.map((ref) => (
+                  filteredReferences.map((ref) => (
                     <motion.li
                       key={ref._id}
                       className="reference-item"
