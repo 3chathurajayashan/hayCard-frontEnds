@@ -4,6 +4,7 @@ import cv1 from '../../assets/ch5.jpg';
 import cv2 from '../../assets/ch6.jpg';
 import cv3 from '../../assets/ch1.jpg';
 import labTechIcon from '../../assets/nm.png'; // Lab tech image
+import ann from '../../assets/xc2.mp4';
 
 export default function Dashboard() {
   const [message, setMessage] = useState("");
@@ -38,10 +39,12 @@ export default function Dashboard() {
   return (
     <div className="page">
       {/* Header */}
-     <header 
-  className="header" 
-  style={{ background: "#8dc63f" }}
->
+<header className="header">
+  <video autoPlay loop muted className="header-video">
+    <source src={ann} type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
   <div className="header-content">
     <div className="header-decoration">
       <span className="decoration-line left"></span>
@@ -53,10 +56,13 @@ export default function Dashboard() {
       <span className="word word-2">Laboratory</span>
       <span className="word word-3">System</span>
     </h1>
-    <p style={{color:"white"}}>Your centralized platform for chemical, login, and sample management</p>
+    <p style={{ color: "white" }}>
+      Your centralized platform for chemical, login, and sample management
+    </p>
     <div className="header-underline"></div>
   </div>
 </header>
+
 
 
       {/* Custom Notification */}
@@ -147,6 +153,15 @@ export default function Dashboard() {
         .header { width: 100%; padding: 60px 20px 40px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: relative; overflow: hidden; }
         .header::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: headerShine 3s ease-in-out infinite; }
         @keyframes headerShine { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+        .header-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ensures video covers the header */
+  z-index: 0;
+}
 
         .header-content { max-width: 1200px; margin: 0 auto; text-align: center; position: relative; z-index: 1; }
 
