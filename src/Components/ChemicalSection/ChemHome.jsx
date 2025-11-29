@@ -1,17 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Import your images (place them in src/assets/)
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+
+// Import your images
 import storageImg from "../../assets/str1.jpg";
 import purchasingImg from "../../assets/str2.jpg";
 
 function ChemHome() {
   const [message, setMessage] = useState("");
-  const [loadingCard, setLoadingCard] = useState(null); // Track which card is loading
+  const [loadingCard, setLoadingCard] = useState(null);
+  const [events, setEvents] = useState([]); // ← CALENDAR EVENTS
+
   const navigate = useNavigate();
 
   const handleNext = (section) => {
-    setLoadingCard(section); // show loading animation
+    setLoadingCard(section);
     setMessage(`Navigating to ${section}...`);
 
     setTimeout(() => {
@@ -19,7 +25,7 @@ function ChemHome() {
       setLoadingCard(null);
       if (section === "Chemical Storage") navigate("/storage");
       if (section === "Chemical Purchasing") navigate("/purchasing");
-    }, 2000); // 2 seconds loading animation
+    }, 2000);
   };
 
   const cards = [
@@ -34,6 +40,84 @@ function ChemHome() {
       image: purchasingImg,
     },
   ];
+
+  // ============================
+  // FETCH + DUMMY CALENDAR DATA
+  // ============================
+  useEffect(() => {
+    fetch("https://your-backend-url.com/api/samples/calendar")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setEvents(data);
+        } else {
+          // Fallback dummy calendar events
+          setEvents([
+            {
+              id: "CHEM-01",
+              title: "Acid Stock Check – Technician: Kavindu",
+              start: "2025-12-02",
+              end: "2025-12-03",
+            },
+            {
+              id: "CHEM-02",
+              title: "Solvent Refill – Technician: Sandun",
+              start: "2025-12-05",
+            },
+            {
+              id: "CHEM-03",
+              title: "Base Titration Prep – Technician: Tharaka",
+              start: "2025-12-08",
+              end: "2025-12-09",
+            },
+            {
+              id: "CHEM-04",
+              title: "Storage Temp Audit – Technician: Iresha",
+              start: "2025-12-10",
+            },
+            {
+              id: "CHEM-05",
+              title: "Chemical Purchasing Review – Technician: Sahan",
+              start: "2025-12-12",
+              end: "2025-12-14",
+            },
+          ]);
+        }
+      })
+      .catch(() => {
+        // Fallback dummy events (in case API fails)
+        setEvents([
+          {
+            id: "CHEM-01",
+            title: "Acid Stock Check – Technician: Kavindu",
+            start: "2025-12-02",
+            end: "2025-12-03",
+          },
+          {
+            id: "CHEM-02",
+            title: "Solvent Refill – Technician: Sandun",
+            start: "2025-12-05",
+          },
+          {
+            id: "CHEM-03",
+            title: "Base Titration Prep – Technician: Tharaka",
+            start: "2025-12-08",
+            end: "2025-12-09",
+          },
+          {
+            id: "CHEM-04",
+            title: "Storage Temp Audit – Technician: Iresha",
+            start: "2025-12-10",
+          },
+          {
+            id: "CHEM-05",
+            title: "Chemical Purchasing Review – Technician: Sahan",
+            start: "2025-12-12",
+            end: "2025-12-14",
+          },
+        ]);
+      });
+  }, []);
 
   return (
     <div className="chem-page">
@@ -62,6 +146,48 @@ function ChemHome() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ===================================================== */}
+      {/*                    CALENDAR SECTION                   */}
+      {/* ===================================================== */}
+
+      <div
+        style={{
+          width: "90%",
+          maxWidth: "1200px",
+          marginTop: "120px",
+          marginBottom: "40px",
+          background: "#ffffff",
+          padding: "25px",
+          borderRadius: "20px",
+          boxShadow: "0px 10px 30px rgba(0,0,0,0.1)",
+          animation: "fadeUp 0.9s ease",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "2rem",
+            color: "#1d2d50",
+            marginBottom: "20px",
+            textAlign: "center",
+          }}
+        >
+          Sample Scheduling Calendar
+        </h2>
+
+        <FullCalendar
+          plugins={[dayGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          height="700px"
+          events={events}
+          eventColor="#1d2d50"
+          eventClick={(info) => {
+            alert(
+              `Event: ${info.event.title}\nStart: ${info.event.start}\nEnd: ${info.event.end}`
+            );
+          }}
+        />
       </div>
 
       {/* Custom CSS */}
@@ -121,7 +247,6 @@ function ChemHome() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          position: relative;
         }
 
         .chem-card:hover {
@@ -133,19 +258,12 @@ function ChemHome() {
           width: 100%;
           height: 180px;
           overflow: hidden;
-          border-top-left-radius: 25px;
-          border-top-right-radius: 25px;
         }
 
         .chem-card-image img {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: transform 0.5s ease;
-        }
-
-        .chem-card:hover .chem-card-image img {
-          transform: scale(1.05);
         }
 
         .chem-card-content {
@@ -175,12 +293,7 @@ function ChemHome() {
           font-size: 1.05rem;
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .chem-card-content button:hover {
-          background: #2a3c6a;
-          transform: scale(1.07);
+          transition: 0.3s ease;
         }
 
         .notification {
@@ -214,15 +327,6 @@ function ChemHome() {
         @keyframes fadeOut {
           0%, 80% { opacity: 1; }
           100% { opacity: 0; transform: translateX(100px); }
-        }
-
-        @media (max-width: 768px) {
-          .chem-card {
-            width: 90%;
-          }
-          .chem-header h1 {
-            font-size: 2rem;
-          }
         }
       `}</style>
     </div>

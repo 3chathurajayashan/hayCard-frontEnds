@@ -1,7 +1,34 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaArrowLeft, FaFlask, FaCheckCircle, FaExclamationCircle, FaInfoCircle } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaFlask,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaInfoCircle,
+} from "react-icons/fa";
+
+// 📌 IMPORT CHART LIBRARIES
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Pie } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
 
 export default function ChemicalRequestPage() {
   const [formData, setFormData] = useState({
@@ -43,7 +70,9 @@ export default function ChemicalRequestPage() {
   const fetchChemicals = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://hay-card-back-end-iota.vercel.app/api/chemicals/all");
+      const response = await fetch(
+        "https://hay-card-back-end-iota.vercel.app/api/chemicals/all"
+      );
       const data = await response.json();
       setChemicals(data);
     } catch (error) {
@@ -84,15 +113,21 @@ export default function ChemicalRequestPage() {
         handOverRange: formData.handOverRange,
       };
 
-      await fetch("https://hay-card-back-end-iota.vercel.app/api/chemicals/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submissionData),
-      });
+      await fetch(
+        "https://hay-card-back-end-iota.vercel.app/api/chemicals/add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(submissionData),
+        }
+      );
 
-      showCustomNotification("Your sample request has been sent successfully!", "success");
+      showCustomNotification(
+        "Your sample request has been sent successfully!",
+        "success"
+      );
       fetchChemicals();
 
       setFormData({
@@ -102,7 +137,10 @@ export default function ChemicalRequestPage() {
         customChemical: "",
       });
     } catch (error) {
-      showCustomNotification("Error submitting your request. Please try again.", "error");
+      showCustomNotification(
+        "Error submitting your request. Please try again.",
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -111,325 +149,171 @@ export default function ChemicalRequestPage() {
   const goBack = () => window.history.back();
 
   const getNotificationIcon = () => {
-    switch(notificationType) {
-      case "success": return <FaCheckCircle size={20} />;
-      case "error": return <FaExclamationCircle size={20} />;
-      case "info": return <FaInfoCircle size={20} />;
-      default: return null;
+    switch (notificationType) {
+      case "success":
+        return <FaCheckCircle size={20} />;
+      case "error":
+        return <FaExclamationCircle size={20} />;
+      case "info":
+        return <FaInfoCircle size={20} />;
+      default:
+        return null;
     }
   };
 
+  // ---------------------------------------------------------
+  // 📌 CHART DATA PROCESSING
+  // ---------------------------------------------------------
+  const chemicalCounts = chemicals.reduce((acc, item) => {
+    const name = item.chemicalName;
+    acc[name] = (acc[name] || 0) + 1;
+    return acc;
+  }, {});
+
+  const barData = {
+    labels: Object.keys(chemicalCounts),
+    datasets: [
+      {
+        label: "Requests",
+        data: Object.values(chemicalCounts),
+        backgroundColor: "#3b82f6",
+      },
+    ],
+  };
+
+  const pieData = {
+    labels: Object.keys(chemicalCounts),
+    datasets: [
+      {
+        data: Object.values(chemicalCounts),
+        backgroundColor: [
+          "#3b82f6",
+          "#10b981",
+          "#f59e0b",
+          "#ef4444",
+          "#8b5cf6",
+          "#14b8a6",
+        ],
+      },
+    ],
+  };
+
+  // ---------------------------------------------------------
+
+  // -------------------- INLINE STYLES --------------------
+  const styles = {
+    pageContainer: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "start",
+      minHeight: "100vh",
+      padding: "40px 20px",
+      position: "relative",
+      fontFamily: "'Inter', sans-serif",
+      background: "#FF9720",
+    },
+    formContainer: {
+      background: "white",
+      padding: "40px",
+      borderRadius: "16px",
+      maxWidth: "500px",
+      width: "100%",
+      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+      border: "1px solid #e2e8f0",
+      marginBottom: "40px",
+      position: "relative",
+    },
+    backBtn: {
+      position: "absolute",
+      top: "20px",
+      left: "20px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#3b82f6",
+      border: "none",
+      borderRadius: "8px",
+      width: "40px",
+      height: "40px",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+      color: "white",
+    },
+    headerIcon: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "60px",
+      height: "60px",
+      background: "#3b82f6",
+      borderRadius: "12px",
+      margin: "0 auto 20px",
+    },
+    title: { fontSize: "28px", fontWeight: 700, color: "#1e293b", textAlign: "center", marginBottom: "8px" },
+    subtitle: { color: "#64748b", fontSize: "14px", textAlign: "center", marginBottom: "30px" },
+    input: {
+      width: "100%",
+      padding: "12px 14px",
+      fontSize: "14px",
+      border: "1px solid #d1d5db",
+      borderRadius: "8px",
+      marginBottom: "20px",
+      outline: "none",
+      transition: "all 0.2s ease",
+      fontFamily: "inherit",
+    },
+    select: {
+      width: "100%",
+      padding: "12px 14px",
+      fontSize: "14px",
+      border: "1px solid #d1d5db",
+      borderRadius: "8px",
+      marginBottom: "20px",
+      outline: "none",
+      transition: "all 0.2s ease",
+      fontFamily: "inherit",
+      background: "white",
+    },
+    submitBtn: {
+      width: "100%",
+      background: "#3b82f6",
+      color: "white",
+      fontWeight: 600,
+      fontSize: "15px",
+      padding: "14px 0",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+    },
+    tableContainer: {
+      width: "100%",
+      maxWidth: "900px",
+      background: "white",
+      borderRadius: "16px",
+      padding: "30px",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+      border: "1px solid #e2e8f0",
+      marginBottom: "40px",
+    },
+    tableHeader: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" },
+    chartSection: {
+      marginTop: "40px",
+      width: "100%",
+      maxWidth: "900px",
+      background: "white",
+      padding: "30px",
+      borderRadius: "16px",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+      border: "1px solid #e2e8f0",
+      marginBottom: "40px",
+    },
+    chartTitle: { fontSize: "20px", fontWeight: 700, color: "#1e293b", marginBottom: "20px", textAlign: "center" },
+  };
+
   return (
-    <>
-      <style>{`
-        * { 
-          box-sizing: border-box; 
-          margin: 0; 
-          padding: 0; 
-        }
-        
-        body {
-          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-          background: #FF9720;
-          min-height: 100vh;
-        }
-
-        .page-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: start;
-          min-height: 100vh;
-          padding: 40px 20px;
-          position: relative;
-        }
-
-        .form-container {
-          background: white;
-          padding: 40px;
-          border-radius: 16px;
-          max-width: 500px;
-          width: 100%;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-          border: 1px solid #e2e8f0;
-          margin-bottom: 40px;
-        }
-
-        .back-btn {
-          position: absolute;
-          top: 20px;
-          left: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #3b82f6;
-          border: none;
-          border-radius: 8px;
-          width: 40px;
-          height: 40px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          color: white;
-        }
-
-        .back-btn:hover {
-          background: #2563eb;
-          transform: translateX(-2px);
-        }
-
-        .header-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 60px;
-          height: 60px;
-          background: #3b82f6;
-          border-radius: 12px;
-          margin: 0 auto 20px;
-        }
-
-        .title {
-          font-size: 28px;
-          font-weight: 700;
-          color: #1e293b;
-          text-align: center;
-          margin-bottom: 8px;
-        }
-
-        .subtitle {
-          color: #64748b;
-          font-size: 14px;
-          text-align: center;
-          margin-bottom: 30px;
-        }
-
-        label {
-          font-weight: 600;
-          color: #374151;
-          display: block;
-          margin-bottom: 8px;
-          font-size: 14px;
-        }
-
-        .required::after {
-          content: " *";
-          color: #ef4444;
-        }
-
-        input, select {
-          width: 100%;
-          padding: 12px 14px;
-          font-size: 14px;
-          border: 1px solid #d1d5db;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          outline: none;
-          transition: all 0.2s ease;
-          background: white;
-          font-family: inherit;
-        }
-
-        input:hover, select:hover {
-          border-color: #9ca3af;
-        }
-
-        input:focus, select:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .submit-btn {
-          width: 100%;
-          background: #3b82f6;
-          color: white;
-          font-weight: 600;
-          font-size: 15px;
-          padding: 14px 0;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .submit-btn:hover:not(:disabled) {
-          background: #2563eb;
-        }
-
-        .submit-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .loading-spinner {
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top: 2px solid #fff;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-          display: inline-block;
-          vertical-align: middle;
-          margin-right: 8px;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        .page-loader {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: white;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-        }
-
-        .loader-spinner {
-          width: 40px;
-          height: 40px;
-          border: 3px solid #f1f5f9;
-          border-top: 3px solid #3b82f6;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 16px;
-        }
-
-        .loader-text {
-          color: #64748b;
-          font-size: 14px;
-        }
-
-        .table-container {
-          width: 100%;
-          max-width: 900px;
-          background: white;
-          border-radius: 16px;
-          padding: 30px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-          border: 1px solid #e2e8f0;
-        }
-
-        .table-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 20px;
-        }
-
-        .table-header h2 {
-          color: #1e293b;
-          font-size: 20px;
-          font-weight: 700;
-          margin: 0;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          text-align: left;
-        }
-
-        thead {
-          background: #f8fafc;
-          border-bottom: 2px solid #e2e8f0;
-        }
-
-        th {
-          padding: 12px 16px;
-          color: #475569;
-          font-weight: 600;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        tbody tr {
-          border-bottom: 1px solid #f1f5f9;
-          transition: background-color 0.2s ease;
-        }
-
-        tbody tr:hover {
-          background: #f8fafc;
-        }
-
-        td {
-          padding: 16px;
-          color: #475569;
-          font-size: 14px;
-          font-weight: 500;
-        }
-
-        .empty-state {
-          text-align: center;
-          padding: 60px 20px;
-          color: #94a3b8;
-          font-size: 14px;
-        }
-
-        .empty-icon {
-          font-size: 40px;
-          margin-bottom: 16px;
-          opacity: 0.5;
-        }
-
-        .notification {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: white;
-          padding: 16px 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-          font-size: 14px;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          z-index: 1000;
-          border-left: 4px solid;
-        }
-
-        .notification.success {
-          border-left-color: #10b981;
-          color: #065f46;
-          background: #f0fdf4;
-        }
-
-        .notification.error {
-          border-left-color: #ef4444;
-          color: #991b1b;
-          background: #fef2f2;
-        }
-
-        .notification.info {
-          border-left-color: #3b82f6;
-          color: #1e40af;
-          background: #eff6ff;
-        }
-
-        @media (max-width: 768px) {
-          .form-container, .table-container {
-            padding: 24px 20px;
-          }
-
-          .title {
-            font-size: 24px;
-          }
-
-          .notification {
-            right: 15px;
-            left: 15px;
-          }
-        }
-      `}</style>
-
+    <div style={styles.pageContainer}>
       {loading && (
         <div className="page-loader">
           <div className="loader-spinner"></div>
@@ -437,152 +321,173 @@ export default function ChemicalRequestPage() {
         </div>
       )}
 
-      <div className="page-container">
-        <div className="form-container">
-          <button className="back-btn" onClick={goBack} title="Go Back">
-            <FaArrowLeft size={16} />
+      {/* FORM */}
+      <div style={styles.formContainer}>
+        <button style={styles.backBtn} onClick={goBack}>
+          <FaArrowLeft size={16} />
+        </button>
+        <div style={styles.headerIcon}>
+          <FaFlask size={24} color="white" />
+        </div>
+        <h1 style={styles.title}>Chemical Request Form</h1>
+        <p style={styles.subtitle}>Submit your chemical requirement below</p>
+
+        <div>
+          <label className="required">Chemical Name</label>
+          <select
+            name="chemicalName"
+            value={formData.chemicalName}
+            onChange={handleChange}
+            style={styles.select}
+            required
+          >
+            <option value="">Select Chemical</option>
+            {chemicalOptions.map((chem, i) => (
+              <option key={i} value={chem}>
+                {chem}
+              </option>
+            ))}
+          </select>
+
+          <AnimatePresence>
+            {formData.chemicalName === "Other" && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                <input
+                  type="text"
+                  name="customChemical"
+                  placeholder="Enter specific chemical name"
+                  value={formData.customChemical}
+                  onChange={handleChange}
+                  style={styles.input}
+                  required
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <label className="required">Quantity</label>
+          <input
+            type="text"
+            name="quantity"
+            placeholder="Example: 25 L, 10 kg, 500 mL"
+            value={formData.quantity}
+            onChange={handleChange}
+            style={styles.input}
+            required
+          />
+
+          <label className="required">Hand Over Timeline</label>
+          <select
+            name="handOverRange"
+            value={formData.handOverRange}
+            onChange={handleChange}
+            style={styles.select}
+            required
+          >
+            <option value="">Select Timeline</option>
+            {handoverOptions.map((range, i) => (
+              <option key={i} value={range}>
+                {range}
+              </option>
+            ))}
+          </select>
+
+          <button type="button" style={styles.submitBtn} disabled={isSubmitting} onClick={handleSubmit}>
+            {isSubmitting ? (
+              <>
+                <span className="loading-spinner"></span>Submitting...
+              </>
+            ) : (
+              "Submit Request"
+            )}
           </button>
-
-          <div className="header-icon">
-            <FaFlask size={24} color="white" />
-          </div>
-
-          <h1 className="title">Chemical Request Form</h1>
-          <p className="subtitle">Submit your chemical requirement below</p>
-
-          <div>
-            <label className="required">Chemical Name</label>
-            <select
-              name="chemicalName"
-              value={formData.chemicalName}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Chemical</option>
-              {chemicalOptions.map((chem, i) => (
-                <option key={i} value={chem}>
-                  {chem}
-                </option>
-              ))}
-            </select>
-
-            <AnimatePresence>
-              {formData.chemicalName === "Other" && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <input
-                    type="text"
-                    name="customChemical"
-                    placeholder="Enter specific chemical name"
-                    value={formData.customChemical}
-                    onChange={handleChange}
-                    required
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <label className="required">Quantity</label>
-            <input
-              type="text"
-              name="quantity"
-              placeholder="Example: 25 L, 10 kg, 500 mL"
-              value={formData.quantity}
-              onChange={handleChange}
-              required
-            />
-
-            <label className="required">Hand Over Timeline</label>
-            <select
-              name="handOverRange"
-              value={formData.handOverRange}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Timeline</option>
-              {handoverOptions.map((range, i) => (
-                <option key={i} value={range}>
-                  {range}
-                </option>
-              ))}
-            </select>
-
-            <button 
-              type="button" 
-              className="submit-btn" 
-              disabled={isSubmitting}
-              onClick={handleSubmit}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="loading-spinner"></span>Submitting...
-                </>
-              ) : (
-                "Submit Request"
-              )}
-            </button>
-          </div>
         </div>
-
-        <div className="table-container">
-          <div className="table-header">
-            <FaFlask size={20} color="#3b82f6" />
-            <h2>Requested Chemicals</h2>
-          </div>
-
-          {!loading && chemicals.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🧪</div>
-              <p>No chemical requests available yet.</p>
-            </div>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Chemical</th>
-                  <th>Quantity</th>
-                  <th>Hand Over</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {chemicals.map((chem, index) => (
-                  <motion.tr
-                    key={chem._id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                  >
-                    <td>{chem.chemicalName}</td>
-                    <td>{chem.quantity}</td>
-                    <td>{chem.handOverRange}</td>
-                    <td>{new Date(chem.createdAt).toLocaleDateString()}</td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        <AnimatePresence>
-          {showNotification && (
-            <motion.div 
-              className={`notification ${notificationType}`}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 100 }}
-              transition={{ duration: 0.2 }}
-            >
-              {getNotificationIcon()}
-              <span>{message}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
-    </>
+
+      {/* TABLE */}
+      <div style={styles.tableContainer}>
+        <div style={styles.tableHeader}>
+          <FaFlask size={20} color="#3b82f6" />
+          <h2>Requested Chemicals</h2>
+        </div>
+        {!loading && chemicals.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">🧪</div>
+            <p>No chemical requests available yet.</p>
+          </div>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+            <thead style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+              <tr>
+                <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, fontSize: "12px" }}>Chemical</th>
+                <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, fontSize: "12px" }}>Quantity</th>
+                <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, fontSize: "12px" }}>Hand Over</th>
+                <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, fontSize: "12px" }}>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chemicals.map((chem, index) => (
+                <motion.tr
+                  key={chem._id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  style={{ borderBottom: "1px solid #f1f5f9" }}
+                >
+                  <td style={{ padding: "16px", color: "#475569", fontSize: "14px", fontWeight: 500 }}>{chem.chemicalName}</td>
+                  <td style={{ padding: "16px", color: "#475569", fontSize: "14px", fontWeight: 500 }}>{chem.quantity}</td>
+                  <td style={{ padding: "16px", color: "#475569", fontSize: "14px", fontWeight: 500 }}>{chem.handOverRange}</td>
+                  <td style={{ padding: "16px", color: "#475569", fontSize: "14px", fontWeight: 500 }}>{new Date(chem.createdAt).toLocaleDateString()}</td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* CHARTS */}
+      <div style={styles.chartSection}>
+        <h2 style={styles.chartTitle}>Chemical Request Statistics</h2>
+        <Bar data={barData} />
+      </div>
+
+      <div style={styles.chartSection}>
+        <h2 style={styles.chartTitle}>Chemical Distribution</h2>
+        <Pie data={pieData} />
+      </div>
+
+      {/* NOTIFICATION */}
+      <AnimatePresence>
+        {showNotification && (
+          <motion.div
+            className={`notification ${notificationType}`}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            style={{
+              position: "fixed",
+              top: 20,
+              right: 20,
+              background: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+              fontSize: "14px",
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              zIndex: 1000,
+              borderLeft: `4px solid ${notificationType === "success" ? "#10b981" : notificationType === "error" ? "#ef4444" : "#3b82f6"}`,
+              color: `${notificationType === "success" ? "#065f46" : notificationType === "error" ? "#991b1b" : "#1e40af"}`,
+              backgroundColor: `${notificationType === "success" ? "#f0fdf4" : notificationType === "error" ? "#fef2f2" : "#eff6ff"}`
+            }}
+          >
+            {getNotificationIcon()}
+            <span>{message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
