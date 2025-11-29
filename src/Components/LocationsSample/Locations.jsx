@@ -45,7 +45,7 @@ function Locations() {
   }, []);
 
   const handleBack = () => {
-  window.location.href = '/presign';
+  window.location.href = '/';
 };
 
 
