@@ -95,7 +95,7 @@ function BranchSelection() {
             display: 'inline-block',
             marginTop: '20px',
             padding: '10px 22px',
-            background: '#00796b',
+            background: '#e72b2bff',
             color: 'white',
             borderRadius: '8px',
             textDecoration: 'none',
@@ -104,7 +104,7 @@ function BranchSelection() {
             fontSize: '1rem'
           }}
           onMouseOver={e => e.currentTarget.style.background = '#004d40'}
-          onMouseOut={e => e.currentTarget.style.background = '#00796b'}
+          onMouseOut={e => e.currentTarget.style.background = '#e72b2bff'}
         >
           View Live Sample Locations
         </a>
