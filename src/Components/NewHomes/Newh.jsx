@@ -4,7 +4,7 @@ import cv1 from '../../assets/ch5.jpg';
 import cv2 from '../../assets/ch6.jpg';
 import cv3 from '../../assets/ch1.jpg';
 import labTechIcon from '../../assets/nm.png'; // Lab tech image
-import ann from '../../assets/xc2.mp4';
+import ann from '../../assets/cv.mp4';
 
 export default function Dashboard() {
   const [message, setMessage] = useState("");
