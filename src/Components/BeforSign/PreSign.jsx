@@ -87,6 +87,27 @@ function BranchSelection() {
       <div className="header">
         <h1>Select Your Laboratory</h1>
         <p>Choose your preferred branch location to continue</p>
+
+        {/* Live Location Button */}
+        <a 
+          href="/location" 
+          style={{
+            display: 'inline-block',
+            marginTop: '20px',
+            padding: '10px 22px',
+            background: '#00796b',
+            color: 'white',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontWeight: '600',
+            transition: 'all 0.3s ease',
+            fontSize: '1rem'
+          }}
+          onMouseOver={e => e.currentTarget.style.background = '#004d40'}
+          onMouseOut={e => e.currentTarget.style.background = '#00796b'}
+        >
+          View Live Sample Locations
+        </a>
       </div>
 
       <div className="branches-grid">

@@ -263,7 +263,7 @@ const generatePDF = (sample) => {
       cursor: pointer;
       margin-top: 20px;
       transition: all 0.3s ease;
-    " onmouseover="this.style.background='#004d40'" onmouseout="this.style.background='#00796b'">
+    " onmouseover="this.style.background='#004d40'" onmouseout="this.style.background='#d11d1dff'">
       Print QR Code
     </button>
   </div>

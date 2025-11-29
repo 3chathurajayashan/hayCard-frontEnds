@@ -21,11 +21,18 @@ import SampleAssign from './Components/SampleAssigns/Assign.jsx';
  import Sampleout from './Components/SampleOuts/Sampleout.jsx'
 import PublicSample from './Components/PublicSample.jsx';
 import Chat from './Components/Chatbot/Chat.jsx'
+import 'leaflet/dist/leaflet.css';
+
+import Locations from './Components/LocationsSample/Locations.jsx';
 const router = createBrowserRouter([
 
   {
     path:"/",
     element: <App/>,
+  },
+   {
+    path:"/location",
+    element: <Locations/>,
   },
     {
     path:"/sign",
