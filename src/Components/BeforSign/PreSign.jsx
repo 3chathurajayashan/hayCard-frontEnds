@@ -9,13 +9,29 @@ function BranchSelection() {
   const [loadingBranch, setLoadingBranch] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [notification, setNotification] = useState("");
-  const timerRef = useRef(); // For clearing timeout
+  const timerRef = useRef(); // For clearing redirect timeout
 
-  // Reset state when component mounts (on page revisit)
+  // Reset state on initial mount
   useEffect(() => {
     setLoadingBranch(null);
     setSelectedBranch(null);
     setNotification("");
+  }, []);
+
+  // Reset state when page comes back from bfcache (Vercel / browser back)
+  useEffect(() => {
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        setLoadingBranch(null);
+        setSelectedBranch(null);
+        setNotification("");
+      }
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
   }, []);
 
   const handleBranchSelect = (branch) => {
@@ -38,7 +54,7 @@ function BranchSelection() {
     }
   }, [notification]);
 
-  // Clear any timer on unmount to prevent lingering
+  // Clear any pending timers on unmount
   useEffect(() => {
     return () => clearTimeout(timerRef.current);
   }, []);
@@ -87,9 +103,7 @@ function BranchSelection() {
                   className="branch-image"
                 />
               ) : (
-                <div className="image-placeholder">
-                  {branch.icon}
-                </div>
+                <div className="image-placeholder">{branch.icon}</div>
               )}
             </div>
             
@@ -116,7 +130,7 @@ function BranchSelection() {
         ))}
       </div>
 
-      {/* Styles remain exactly the same */}
+      {/* Styles remain the same */}
       <style>{`
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }

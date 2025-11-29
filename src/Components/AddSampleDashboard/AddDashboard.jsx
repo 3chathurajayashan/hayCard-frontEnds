@@ -209,48 +209,73 @@ const generatePDF = (sample) => {
       const qrDataUrl = await QRCode.toDataURL(url);
 
       const win = window.open();
-      win.document.write(`
-        <div style="
-          font-family: 'Poppins', sans-serif;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          background: linear-gradient(135deg, #e0f7fa, #ffffff);
-          margin: 0;
-          padding: 20px;
-          color: #333;
-          text-align: center;
-        ">
-          <h3 style="
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #00796b;
-          ">Scan this QR to view sample details:</h3>
-          <img src="${qrDataUrl}" alt="QR Code" style="
-            width: 250px;
-            height: 250px;
-            border: 8px solid #00796b;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            margin-bottom: 25px;
-          " />
-          <p style="
-            font-size: 16px;
-            max-width: 80%;
-            word-break: break-word;
-          ">
-            Or open this link: <br>
-            <a href="${url}" target="_blank" style="
-              color: #00695c;
-              text-decoration: none;
-              font-weight: bold;
-            ">${url}</a>
-          </p>
-        </div>
-      `);
-      win.document.close();
+    win.document.write(`
+  <div style="
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0f7fa, #ffffff);
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    text-align: center;
+  ">
+    <h3 style="
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #00796b;
+    ">Scan this QR to view sample details:</h3>
+    
+    <img src="${qrDataUrl}" alt="QR Code" style="
+      width: 250px;
+      height: 250px;
+      border: 8px solid #00796b;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin-bottom: 25px;
+    " />
+
+    <p style="
+      font-size: 16px;
+      max-width: 80%;
+      word-break: break-word;
+    ">
+      Or open this link: <br>
+      <a href="${url}" target="_blank" style="
+        color: #00695c;
+        text-decoration: none;
+        font-weight: bold;
+      ">${url}</a>
+    </p>
+
+    <!-- Print Button -->
+    <button id="printBtn" style="
+      padding: 12px 24px;
+      background: #d11d1dff;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    " onmouseover="this.style.background='#004d40'" onmouseout="this.style.background='#00796b'">
+      Print QR Code
+    </button>
+  </div>
+
+  <script>
+    document.getElementById('printBtn').addEventListener('click', () => {
+      window.print();
+    });
+  </script>
+`);
+win.document.close();
+
     } catch (err) {
       console.error("QR generation error:", err);
     }
