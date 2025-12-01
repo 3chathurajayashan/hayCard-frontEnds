@@ -10,6 +10,7 @@ import { FaPlus } from "react-icons/fa";
 // Import your images
 import storageImg from "../../assets/str1.jpg";
 import purchasingImg from "../../assets/str2.jpg";
+import purchasingImgs from "../../assets/ec.jpg";
 
 function ChemHome() {
   const [message, setMessage] = useState("");
@@ -30,6 +31,7 @@ function ChemHome() {
       setLoadingCard(null);
       if (section === "Chemical Storage") navigate("/storage");
       if (section === "Chemical Purchasing") navigate("/purchasing");
+      if (section === "Chemical Industry") navigate("/future");
     }, 2000);
   };
 
@@ -43,6 +45,11 @@ function ChemHome() {
       title: "Chemical Purchasing",
       desc: "Track and record purchasing details efficiently.",
       image: purchasingImg,
+    },
+     {
+      title: "Chemical Industry",
+      desc: "Track and record purchasing details efficiently.",
+      image: purchasingImgs,
     },
   ];
 

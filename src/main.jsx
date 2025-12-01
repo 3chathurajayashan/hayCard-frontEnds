@@ -22,6 +22,7 @@ import SampleAssign from './Components/SampleAssigns/Assign.jsx';
 import PublicSample from './Components/PublicSample.jsx';
 import Chat from './Components/Chatbot/Chat.jsx'
 import 'leaflet/dist/leaflet.css';
+import Future from './Components/FutureSection/Future.jsx'
 
 import Locations from './Components/LocationsSample/Locations.jsx';
 const router = createBrowserRouter([
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
   {
     path:"/",
     element: <App/>,
+  },
+   {
+    path:"/future",
+    element: <Future/>,
   },
    {
     path:"/location",
