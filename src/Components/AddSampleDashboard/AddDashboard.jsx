@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import QRCode from "qrcode"; // Add this import
   import { jsPDF } from "jspdf";
+  import HayLog from '../../assets/logo.png'
 const FRONTEND_URL = "https://hay-card-front-end.vercel.app";
 
 export default function FactoryDashboard() {
@@ -54,22 +55,25 @@ export default function FactoryDashboard() {
 const generatePDF = (sample) => {
   const doc = new jsPDF();
 
-  // Add company header
-  doc.setFillColor(141, 198, 63); // Haycarb green
-  doc.rect(0, 0, 210, 30, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.text('HAYCARB PLC', 105, 15, { align: 'center' });
-  doc.setFontSize(14);
-  doc.text('SAMPLE ANALYSIS REPORT', 105, 25, { align: 'center' });
+  // Add company header with green background
+ doc.setFillColor(255, 255, 255); // white background
+  doc.rect(0, 0, 210, 40, 'F'); // slightly taller to fit logo
+
+  // Add HayLog logo at top center
+  // Assuming HayLog is already imported and is a base64 string or URL
+  const imgProps = doc.getImageProperties(HayLog);
+  const imgWidth = 50; // width of logo in mm
+  const imgHeight = (imgProps.height * imgWidth) / imgProps.width; // maintain aspect ratio
+  doc.addImage(HayLog, 'PNG', (210 - imgWidth) / 2, 5, imgWidth, imgHeight); // center horizontally, 5mm from top
+
+ 
 
   // Reset text color for content
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
 
-  let yPosition = 40;
+  let yPosition = 50; // start content below header/logo
 
   // Sample Information
   doc.setFont('helvetica', 'bold');
