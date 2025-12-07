@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import logo from '../../assets/logo.webp';
@@ -11,41 +11,6 @@ function Signin() {
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const audioContextRef = useRef(null);
-
-  useEffect(() => {
-    // Initialize Web Audio API context
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    }
-  }, []);
-
-  // Play success sound
-  const playSuccessSound = () => {
-    const audioContext = audioContextRef.current;
-    if (!audioContext) return;
-
-    // Create oscillator for a pleasant success sound
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // First note (C6)
-    oscillator.frequency.setValueAtTime(1046.5, audioContext.currentTime);
-    // Second note (E6)
-    oscillator.frequency.setValueAtTime(1318.5, audioContext.currentTime + 0.1);
-    // Third note (G6)
-    oscillator.frequency.setValueAtTime(1568, audioContext.currentTime + 0.2);
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
-  };
 
   // Show notification
   const showNotification = (message, type) => {
@@ -78,17 +43,16 @@ function Signin() {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://hay-card-back-end-iota.vercel.app/api/users/login", {
+      const res = await axios.post("https://hay-card-back-end.vercel.app/api/users/login", {
         email: inputs.email,
         password: inputs.password,
       });
 
-      // Store in memory instead of localStorage (as per artifact restrictions)
-      const token = res.data.token;
-      const user = res.data.user;
-      const userRole = user.role;
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      playSuccessSound();
+      const userRole = res.data.user.role;
+
       showNotification("Login successful! Redirecting...", "success");
 
       setTimeout(() => {
@@ -107,16 +71,11 @@ function Signin() {
 
   return (
     <div style={styles.container}>
-      {/* Animated Background Gradient */}
-      <div style={styles.backgroundGradient}></div>
-      
-      {/* Floating Particles */}
-      <div style={styles.particlesContainer}>
-        <div style={{...styles.particle, ...styles.particle1}}></div>
-        <div style={{...styles.particle, ...styles.particle2}}></div>
-        <div style={{...styles.particle, ...styles.particle3}}></div>
-        <div style={{...styles.particle, ...styles.particle4}}></div>
-        <div style={{...styles.particle, ...styles.particle5}}></div>
+      {/* Animated Background */}
+      <div style={styles.backgroundAnimation}>
+        <div style={styles.circle1}></div>
+        <div style={styles.circle2}></div>
+        <div style={styles.circle3}></div>
       </div>
 
       {/* Custom Notification */}
@@ -135,14 +94,14 @@ function Signin() {
             ) : (
               <div style={styles.errorIconWrapper}>
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                 </svg>
               </div>
             )}
           </div>
           <div style={styles.notificationContent}>
             <div style={styles.notificationTitle}>
-              {notification.type === "success" ? "Success" : "Error"}
+              {notification.type === "success" ? "Success!" : "Error"}
             </div>
             <div style={styles.notificationMessage}>{notification.message}</div>
           </div>
@@ -165,26 +124,26 @@ function Signin() {
 
       <div style={styles.loginContainer}>
         <div style={styles.loginCard}>
-          {/* Logo Section */}
-          <div style={styles.logoSection}>
-            <div style={styles.logoWrapper}>
-              <img src={logo} alt="Company Logo" style={styles.logoImage} />
-              <div style={styles.logoPulse1}></div>
-              <div style={styles.logoPulse2}></div>
-            </div>
-          </div>
-
-          {/* Header */}
+          {/* Header with Logo Animation */}
           <div style={styles.header}>
-            <h1 style={styles.title}>Welcome Back</h1>
-            <p style={styles.subtitle}>Sign in to your account to continue</p>
+            <div style={styles.logoContainer}>
+              <div style={styles.logoWrapper}>
+                <img src={logo} alt="Company Logo" style={styles.logoImage} />
+                <div style={styles.logoPulse}></div>
+              </div>
+            </div>
+            <h1 style={styles.title}>
+              <span style={styles.titleWord}>Welcome</span>
+              <span style={{...styles.titleWord, animationDelay: '0.1s'}}>Back</span>
+            </h1>
+            <p style={styles.subtitle}>Sign in to continue to your account</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} style={styles.form}>
             {error && (
               <div style={styles.errorBox}>
-                <div style={styles.errorIcon}>
+                <div style={styles.errorIconBounce}>
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                   </svg>
@@ -207,7 +166,7 @@ function Signin() {
                 <input
                   type="email"
                   name="email"
-                  placeholder="you@example.com"
+                  placeholder="Enter your email"
                   value={inputs.email}
                   onChange={handleChange}
                   onFocus={() => setEmailFocused(true)}
@@ -218,11 +177,7 @@ function Signin() {
                 />
                 {inputs.email && (
                   <div style={styles.inputIconRight}>
-                    <div style={styles.checkmark}>
-                      <svg viewBox="0 0 24 24" width="18" height="18" fill="#10b981">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                      </svg>
-                    </div>
+                    <div style={styles.checkmarkAnimation}>✓</div>
                   </div>
                 )}
               </div>
@@ -240,7 +195,7 @@ function Signin() {
                   </svg>
                 </div>
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   name="password"
                   placeholder="Enter your password"
                   value={inputs.password}
@@ -252,22 +207,9 @@ function Signin() {
                   disabled={loading}
                 />
                 {inputs.password && (
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={styles.passwordToggle}
-                    disabled={loading}
-                  >
-                    {showPassword ? (
-                      <svg viewBox="0 0 24 24" width="18" height="18" fill="#64748b">
-                        <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-                      </svg>
-                    ) : (
-                      <svg viewBox="0 0 24 24" width="18" height="18" fill="#64748b">
-                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                      </svg>
-                    )}
-                  </button>
+                  <div style={styles.inputIconRight}>
+                    <div style={styles.checkmarkAnimation}>✓</div>
+                  </div>
                 )}
               </div>
             </div>
@@ -282,9 +224,8 @@ function Signin() {
             >
               {loading ? (
                 <div style={styles.loadingContainer}>
-                  <div style={styles.spinnerWrapper}>
-                    <div style={styles.spinnerRing}></div>
-                    <div style={styles.spinnerRing2}></div>
+                  <div style={styles.spinnerContainer}>
+                    <div style={styles.spinner}></div>
                     <div style={styles.spinnerCore}></div>
                   </div>
                   <span style={styles.loadingText}>Authenticating</span>
@@ -302,6 +243,7 @@ function Signin() {
                   </svg>
                 </>
               )}
+              <div style={styles.buttonRipple}></div>
             </button>
           </form>
 
@@ -311,7 +253,7 @@ function Signin() {
               <svg viewBox="0 0 24 24" width="16" height="16" fill="#8dc63f">
                 <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
               </svg>
-              <span>256-bit SSL Encrypted Connection</span>
+              <span>Secure SSL Encrypted</span>
             </div>
           </div>
         </div>
@@ -323,26 +265,16 @@ function Signin() {
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "#0f172a",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     padding: "20px",
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     position: "relative",
     overflow: "hidden",
   },
-  backgroundGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    background: "radial-gradient(circle at 20% 50%, rgba(141, 198, 63, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%), radial-gradient(circle at 40% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%)",
-    animation: "gradientShift 20s ease infinite",
-    zIndex: 0,
-  },
-  particlesContainer: {
+  backgroundAnimation: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -351,128 +283,110 @@ const styles = {
     overflow: "hidden",
     zIndex: 0,
   },
-  particle: {
+  circle1: {
     position: "absolute",
+    width: "500px",
+    height: "500px",
     borderRadius: "50%",
-    background: "rgba(141, 198, 63, 0.1)",
-    filter: "blur(2px)",
+    background: "rgba(255, 255, 255, 0.05)",
+    top: "-250px",
+    right: "-100px",
+    animation: "float 20s ease-in-out infinite",
   },
-  particle1: {
+  circle2: {
+    position: "absolute",
     width: "300px",
     height: "300px",
-    top: "10%",
-    left: "10%",
-    animation: "float1 25s ease-in-out infinite",
+    borderRadius: "50%",
+    background: "rgba(255, 255, 255, 0.03)",
+    bottom: "-150px",
+    left: "-50px",
+    animation: "float 15s ease-in-out infinite reverse",
   },
-  particle2: {
-    width: "200px",
-    height: "200px",
-    top: "60%",
-    right: "15%",
-    background: "rgba(102, 126, 234, 0.08)",
-    animation: "float2 20s ease-in-out infinite",
-  },
-  particle3: {
-    width: "150px",
-    height: "150px",
-    bottom: "20%",
-    left: "20%",
-    background: "rgba(118, 75, 162, 0.08)",
-    animation: "float3 18s ease-in-out infinite",
-  },
-  particle4: {
-    width: "100px",
-    height: "100px",
-    top: "30%",
-    right: "30%",
-    animation: "float1 22s ease-in-out infinite reverse",
-  },
-  particle5: {
-    width: "180px",
-    height: "180px",
-    bottom: "10%",
-    right: "10%",
-    background: "rgba(141, 198, 63, 0.06)",
-    animation: "float2 24s ease-in-out infinite reverse",
+  circle3: {
+    position: "absolute",
+    width: "400px",
+    height: "400px",
+    borderRadius: "50%",
+    background: "rgba(255, 255, 255, 0.04)",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    animation: "pulse 10s ease-in-out infinite",
   },
   loginContainer: {
     width: "100%",
-    maxWidth: "480px",
+    maxWidth: "460px",
     position: "relative",
     zIndex: 1,
   },
   loginCard: {
-    background: "rgba(255, 255, 255, 0.98)",
-    backdropFilter: "blur(40px)",
-    borderRadius: "32px",
-    boxShadow: "0 30px 80px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.5) inset",
-    padding: "56px 48px",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    animation: "cardEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "24px",
+    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3), 0 0 100px rgba(102, 126, 234, 0.2)",
+    padding: "48px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    animation: "slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
   },
-  logoSection: {
+  header: {
+    textAlign: "center",
+    marginBottom: "40px",
+  },
+  logoContainer: {
     display: "flex",
     justifyContent: "center",
-    marginBottom: "32px",
+    marginBottom: "24px",
   },
   logoWrapper: {
     position: "relative",
     display: "inline-block",
   },
   logoImage: {
-    width: "180px",
-    height: "120px",
+    width: "158px",
+    height: "108px",
     objectFit: "contain",
     position: "relative",
     zIndex: 2,
-    filter: "drop-shadow(0 4px 12px rgba(141, 198, 63, 0.3))",
-    animation: "logoFloat 4s ease-in-out infinite",
+    animation: "logoFloat 3s ease-in-out infinite",
   },
-  logoPulse1: {
+  logoPulse: {
     position: "absolute",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: "140px",
-    height: "140px",
+    width: "120px",
+    height: "120px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(141, 198, 63, 0.2) 0%, transparent 70%)",
-    animation: "pulse1 3s ease-in-out infinite",
+    background: "rgba(141, 198, 63, 0.2)",
+    animation: "logoPulse 2s ease-in-out infinite",
     zIndex: 1,
   },
-  logoPulse2: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "140px",
-    height: "140px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(141, 198, 63, 0.15) 0%, transparent 70%)",
-    animation: "pulse2 3s ease-in-out infinite",
-    zIndex: 0,
-  },
-  header: {
-    textAlign: "center",
-    marginBottom: "40px",
-  },
   title: {
-    fontSize: "36px",
+    fontSize: "32px",
     fontWeight: "700",
-    background: "linear-gradient(135deg, #1e293b 0%, #475569 100%)",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
     margin: "0 0 12px 0",
     letterSpacing: "-1px",
-    animation: "fadeInDown 0.6s ease-out",
+    display: "flex",
+    justifyContent: "center",
+    gap: "12px",
+  },
+  titleWord: {
+    display: "inline-block",
+    animation: "fadeInUp 0.6s ease-out forwards",
+    opacity: 0,
   },
   subtitle: {
     fontSize: "15px",
     color: "#64748b",
     margin: 0,
     fontWeight: "400",
-    animation: "fadeIn 0.8s ease-out 0.2s backwards",
+    animation: "fadeIn 0.8s ease-out 0.3s forwards",
+    opacity: 0,
   },
   form: {
     display: "flex",
@@ -480,72 +394,72 @@ const styles = {
     gap: "24px",
   },
   errorBox: {
-    background: "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)",
+    background: "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)",
     color: "#991b1b",
-    padding: "16px 20px",
-    borderRadius: "16px",
+    padding: "14px 18px",
+    borderRadius: "12px",
     fontSize: "14px",
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    border: "1px solid #fecaca",
-    animation: "errorShake 0.5s ease-in-out",
-    boxShadow: "0 4px 12px rgba(239, 68, 68, 0.1)",
+    border: "1px solid #fca5a5",
+    animation: "shake 0.5s ease-in-out",
   },
-  errorIcon: {
-    animation: "errorBounce 0.6s ease-in-out",
+  errorIconBounce: {
+    animation: "bounce 0.6s ease-in-out",
     display: "flex",
     alignItems: "center",
-    flexShrink: 0,
   },
   inputGroup: {
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
+    gap: "8px",
   },
   label: {
     fontSize: "14px",
     fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: "2px",
-    transition: "color 0.3s ease",
+    color: "#334155",
+    marginBottom: "4px",
+    transition: "all 0.3s ease",
   },
   inputContainer: {
     position: "relative",
     display: "flex",
     alignItems: "center",
     background: "#f8fafc",
-    borderRadius: "16px",
+    borderRadius: "12px",
     border: "2px solid #e2e8f0",
-    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   },
   inputContainerFocused: {
     border: "2px solid #8dc63f",
     background: "#ffffff",
-    boxShadow: "0 0 0 4px rgba(141, 198, 63, 0.12), 0 12px 24px rgba(141, 198, 63, 0.15)",
+    boxShadow: "0 0 0 4px rgba(141, 198, 63, 0.1), 0 8px 16px rgba(141, 198, 63, 0.1)",
     transform: "translateY(-2px)",
   },
   inputIconLeft: {
     position: "absolute",
-    left: "18px",
+    left: "16px",
     display: "flex",
     alignItems: "center",
     transition: "all 0.3s ease",
-    pointerEvents: "none",
   },
   inputIconRight: {
     position: "absolute",
-    right: "18px",
+    right: "16px",
     display: "flex",
     alignItems: "center",
   },
-  checkmark: {
-    animation: "checkmarkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+  checkmarkAnimation: {
+    color: "#10b981",
+    fontSize: "18px",
+    fontWeight: "bold",
+    animation: "checkmark 0.4s ease-in-out",
   },
   input: {
     width: "100%",
-    padding: "18px 52px",
-    borderRadius: "16px",
+    padding: "16px 50px",
+    borderRadius: "12px",
     border: "none",
     fontSize: "15px",
     background: "transparent",
@@ -554,23 +468,10 @@ const styles = {
     color: "#1e293b",
     transition: "all 0.3s ease",
   },
-  passwordToggle: {
-    position: "absolute",
-    right: "18px",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    padding: "8px",
-    borderRadius: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "all 0.2s ease",
-  },
   submitButton: {
     width: "100%",
     padding: "18px 32px",
-    borderRadius: "16px",
+    borderRadius: "12px",
     border: "none",
     background: "linear-gradient(135deg, #8dc63f 0%, #7cb32e 100%)",
     color: "white",
@@ -578,22 +479,33 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     fontFamily: "inherit",
-    marginTop: "12px",
+    marginTop: "8px",
     position: "relative",
     overflow: "hidden",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "10px",
-    boxShadow: "0 12px 32px rgba(141, 198, 63, 0.35), 0 0 0 1px rgba(141, 198, 63, 0.1) inset",
-    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    gap: "8px",
+    boxShadow: "0 10px 30px rgba(141, 198, 63, 0.3)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   },
   submitButtonLoading: {
     background: "linear-gradient(135deg, #7cb32e 0%, #6aa127 100%)",
     cursor: "not-allowed",
   },
   buttonArrow: {
-    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: "transform 0.3s ease",
+  },
+  buttonRipple: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: "0",
+    height: "0",
+    borderRadius: "50%",
+    background: "rgba(255, 255, 255, 0.3)",
+    transform: "translate(-50%, -50%)",
+    transition: "width 0.6s ease, height 0.6s ease",
   },
   loadingContainer: {
     display: "flex",
@@ -601,12 +513,12 @@ const styles = {
     justifyContent: "center",
     gap: "12px",
   },
-  spinnerWrapper: {
+  spinnerContainer: {
     position: "relative",
     width: "24px",
     height: "24px",
   },
-  spinnerRing: {
+  spinner: {
     position: "absolute",
     width: "24px",
     height: "24px",
@@ -615,29 +527,19 @@ const styles = {
     borderRadius: "50%",
     animation: "spin 0.8s linear infinite",
   },
-  spinnerRing2: {
-    position: "absolute",
-    width: "24px",
-    height: "24px",
-    border: "3px solid transparent",
-    borderBottom: "3px solid rgba(255, 255, 255, 0.6)",
-    borderRadius: "50%",
-    animation: "spin 1.2s linear infinite reverse",
-  },
   spinnerCore: {
     position: "absolute",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: "8px",
-    height: "8px",
+    width: "12px",
+    height: "12px",
     background: "white",
     borderRadius: "50%",
-    animation: "corePulse 0.8s ease-in-out infinite",
+    animation: "pulse 1s ease-in-out infinite",
   },
   loadingText: {
     fontWeight: "600",
-    letterSpacing: "0.3px",
   },
   loadingDots: {
     display: "flex",
@@ -659,92 +561,89 @@ const styles = {
   securityBadge: {
     display: "inline-flex",
     alignItems: "center",
-    gap: "10px",
-    padding: "12px 24px",
-    background: "linear-gradient(135deg, rgba(141, 198, 63, 0.08) 0%, rgba(141, 198, 63, 0.12) 100%)",
+    gap: "8px",
+    padding: "10px 20px",
+    background: "rgba(141, 198, 63, 0.1)",
     borderRadius: "50px",
     fontSize: "13px",
     color: "#475569",
     fontWeight: "500",
     border: "1px solid rgba(141, 198, 63, 0.2)",
-    boxShadow: "0 2px 8px rgba(141, 198, 63, 0.1)",
   },
   // Notification Styles
   notification: {
     position: "fixed",
-    top: "32px",
-    right: "32px",
-    width: "420px",
-    maxWidth: "calc(100vw - 64px)",
+    top: "24px",
+    right: "24px",
+    width: "400px",
     background: "white",
-    borderRadius: "20px",
-    boxShadow: "0 24px 60px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0, 0, 0, 0.1)",
+    borderRadius: "16px",
+    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.2), 0 0 100px rgba(0, 0, 0, 0.1)",
     zIndex: 10000,
-    animation: "notificationSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+    animation: "notificationSlide 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
     overflow: "hidden",
     display: "flex",
     alignItems: "flex-start",
-    padding: "24px",
+    padding: "20px",
     gap: "16px",
+    position: "relative",
   },
   notificationSuccess: {
-    borderLeft: "5px solid #10b981",
+    borderLeft: "4px solid #10b981",
   },
   notificationError: {
-    borderLeft: "5px solid #ef4444",
+    borderLeft: "4px solid #ef4444",
   },
   notificationIconContainer: {
     flexShrink: 0,
   },
   successIconWrapper: {
-    width: "44px",
-    height: "44px",
+    width: "40px",
+    height: "40px",
     borderRadius: "50%",
     background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    animation: "iconScaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-    boxShadow: "0 8px 24px rgba(16, 185, 129, 0.4)",
+    animation: "scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+    boxShadow: "0 8px 20px rgba(16, 185, 129, 0.3)",
   },
   errorIconWrapper: {
-    width: "44px",
-    height: "44px",
+    width: "40px",
+    height: "40px",
     borderRadius: "50%",
     background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    animation: "iconScaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-    boxShadow: "0 8px 24px rgba(239, 68, 68, 0.4)",
+    animation: "scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+    boxShadow: "0 8px 20px rgba(239, 68, 68, 0.3)",
   },
   notificationContent: {
     flex: 1,
-    minWidth: 0,
   },
   notificationTitle: {
     fontSize: "16px",
     fontWeight: "700",
     color: "#1e293b",
-    marginBottom: "6px",
-    letterSpacing: "-0.2px",
+    marginBottom: "4px",
   },
   notificationMessage: {
     fontSize: "14px",
     color: "#64748b",
-    lineHeight: "1.6",
+    lineHeight: "1.5",
   },
   notificationClose: {
-    background: "transparent",
+    background: "none",
     border: "none",
     color: "#94a3b8",
     cursor: "pointer",
-    padding: "8px",
-    borderRadius: "10px",
+    padding: "4px",
+    borderRadius: "8px",
     transition: "all 0.2s ease",
     flexShrink: 0,
-    width: "36px",
-    height: "36px",
+    width: "32px",
+    height: "32px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -761,7 +660,7 @@ const styles = {
     height: "100%",
     width: "100%",
     transformOrigin: "left",
-    animation: "progressShrink 5s linear forwards",
+    animation: "progress 5s linear forwards",
   },
 };
 
@@ -773,113 +672,90 @@ styleSheet.textContent = `
     100% { transform: rotate(360deg); }
   }
   
-  @keyframes corePulse {
-    0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    50% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.6); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
   }
   
-  @keyframes gradientShift {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.2) rotate(5deg); }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-30px); }
   }
   
-  @keyframes float1 {
-    0%, 100% { transform: translate(0, 0); }
-    33% { transform: translate(30px, -30px); }
-    66% { transform: translate(-20px, 20px); }
+  @keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
   
-  @keyframes float2 {
-    0%, 100% { transform: translate(0, 0); }
-    33% { transform: translate(-25px, 25px); }
-    66% { transform: translate(20px, -20px); }
-  }
-  
-  @keyframes float3 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(15px, -25px); }
-  }
-  
-  @keyframes cardEntrance {
-    0% { transform: translateY(50px) scale(0.95); opacity: 0; }
-    100% { transform: translateY(0) scale(1); opacity: 1; }
-  }
-  
-  @keyframes fadeInDown {
-    0% { transform: translateY(-20px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+  @keyframes fadeInUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
   
   @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   
-  @keyframes errorShake {
+  @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-12px); }
-    75% { transform: translateX(12px); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
   }
   
-  @keyframes errorBounce {
+  @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    50% { transform: translateY(-10px); }
   }
   
-  @keyframes checkmarkPop {
-    0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-    50% { transform: scale(1.3) rotate(10deg); }
+  @keyframes checkmark {
+    0% { transform: scale(0) rotate(45deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(45deg); }
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
   
   @keyframes dotBounce {
-    0%, 80%, 100% { transform: translateY(0); opacity: 1; }
-    40% { transform: translateY(-10px); opacity: 0.7; }
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-8px); }
   }
   
   @keyframes logoFloat {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-12px); }
+    50% { transform: translateY(-10px); }
   }
   
-  @keyframes pulse1 {
+  @keyframes logoPulse {
     0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
-    50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.1; }
   }
   
-  @keyframes pulse2 {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; }
-    50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+  @keyframes notificationSlide {
+    from { transform: translateX(120%) rotate(10deg); opacity: 0; }
+    to { transform: translateX(0) rotate(0); opacity: 1; }
   }
   
-  @keyframes notificationSlideIn {
-    0% { transform: translateX(150%) rotate(15deg); opacity: 0; }
-    100% { transform: translateX(0) rotate(0); opacity: 1; }
+  @keyframes scaleIn {
+    from { transform: scale(0) rotate(-180deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
   }
   
-  @keyframes iconScaleIn {
-    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-    60% { transform: scale(1.15) rotate(10deg); }
-    100% { transform: scale(1) rotate(0); opacity: 1; }
-  }
-  
-  @keyframes progressShrink {
+  @keyframes progress {
     0% { transform: scaleX(1); }
     100% { transform: scaleX(0); }
   }
   
+  /* Hover effects */
   button:not(:disabled):hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 40px rgba(141, 198, 63, 0.45), 0 0 0 1px rgba(141, 198, 63, 0.1) inset !important;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(141, 198, 63, 0.4) !important;
   }
   
   button:not(:disabled):hover svg {
-    transform: translateX(6px);
+    transform: translateX(5px);
   }
   
   button:not(:disabled):active {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(141, 198, 63, 0.35) !important;
+    transform: translateY(0);
   }
   
   input:disabled {
@@ -887,32 +763,11 @@ styleSheet.textContent = `
     cursor: not-allowed;
   }
   
-  input::placeholder {
-    color: #94a3b8;
-  }
-  
-  input:focus::placeholder {
-    opacity: 0.5;
-  }
-  
-  .notification button:hover {
-    background: rgba(0, 0, 0, 0.05) !important;
-    color: #475569 !important;
-    transform: none !important;
-    box-shadow: none !important;
-  }
-  
-  @media (max-width: 640px) {
-    .notification {
-      width: calc(100vw - 32px);
-      right: 16px;
-      top: 16px;
-    }
-  }
-  
+  /* Responsive */
   @media (max-width: 480px) {
-    input {
-      font-size: 16px;
+    .notification {
+      width: calc(100% - 32px);
+      right: 16px;
     }
   }
 `;
