@@ -176,9 +176,9 @@ export default function Dashboard() {
 
         .header h1 { font-size: 3rem; font-weight: 700; color: #ffffff; margin-bottom: 16px; letter-spacing: -0.02em; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
         .word { display: inline-block; opacity: 0; transform: translateY(-40px) rotateX(-90deg); animation: wordDrop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-        .word-1 { animation-delay: 0.2s; }
-        .word-2 { animation-delay: 0.4s; }
-        .word-3 { animation-delay: 0.6s; }
+        .word-1 { animation-delay: 0.2s; font-size: 3rem;}
+        .word-2 { animation-delay: 0.4s; font-size: 3rem;}
+        .word-3 { animation-delay: 0.6s;font-size: 3rem; }
         @keyframes wordDrop { to { opacity: 1; transform: translateY(0) rotateX(0); } }
 
         .header p { color: #bdc3c7; font-size: 1.1rem; line-height: 1.6; animation: subtitleFade 1s ease 0.8s backwards; }

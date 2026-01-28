@@ -8,8 +8,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { FaPlus } from "react-icons/fa";
 
 // Import your images
-import storageImg from "../../assets/str1.jpg";
-import purchasingImg from "../../assets/str2.jpg";
+import storageImg from "../../assets/N2.jpeg";
+import purchasingImg from "../../assets/N1.jpeg";
 import purchasingImgs from "../../assets/ec.jpg";
 
 function ChemHome() {
