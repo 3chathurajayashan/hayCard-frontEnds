@@ -23,13 +23,14 @@ import PublicSample from './Components/PublicSample.jsx';
 import Chat from './Components/Chatbot/Chat.jsx'
 import 'leaflet/dist/leaflet.css';
 import Future from './Components/FutureSection/Future.jsx'
+import MaintenancePage from './Maintenece.jsx';
 
 import Locations from './Components/LocationsSample/Locations.jsx';
 const router = createBrowserRouter([
 
   {
     path:"/",
-    element: <App/>,
+    element: <MaintenancePage />,
   },
    {
     path:"/future",
