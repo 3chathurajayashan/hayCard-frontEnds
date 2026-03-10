@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import QRCode from "qrcode";
 
 const ROUTES = ["Direct from Madampe", "Direct from Badalgama", "Through Wewalduwa"];
 const ORIGINS = ["HCM", "HCB", "HCM HCB"];
+
 
 function Toast({ message, type = "success", onClose }) {
   useEffect(() => { const t = setTimeout(onClose, 3500); return () => clearTimeout(t); }, []);
@@ -23,6 +25,7 @@ function Toast({ message, type = "success", onClose }) {
     </div>
   );
 }
+
 
 function Field({ label, required, children }) {
   return (
@@ -52,6 +55,7 @@ function TextInput({ label, value, onChange, placeholder, required, readOnly, ty
     </Field>
   );
 }
+
 
 function SelectInput({ label, value, options, onChange }) {
   const [f, setF] = useState(false);
@@ -162,23 +166,343 @@ export default function App() {
     setTempKey(""); setShowModal(false);
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (!gp.requestRefNo || !gp.gatePassNo) { setToast({ message: "Fill all required fields.", type: "error" }); return; }
-    if (gp.samples.length === 0) { setToast({ message: "Add at least one sample.", type: "error" }); return; }
-    setSubmitting(true);
-    await new Promise(r => setTimeout(r, 900));
-    setHistory(h => [{ ...gp, savedAt: new Date().toLocaleString() }, ...h]);
-    setToast({ message: "Gate Pass synchronized successfully.", type: "success" });
-    setSubmitting(false);
-    setStep(2);
-    const now = new Date();
-    setTimeout(() => {
-      setGP({ requestRefNo: "", sampleRefNo: "", from: ["HCM"], sampleRoute: "Direct from Madampe", gatePassNo: "", remarks: "", sampleInDate: now.toISOString().split("T")[0], sampleInTime: now.toTimeString().substring(0, 5), samples: [] });
-      setSForm({ sampleId: "", testMethod: "", unitNumber: "", results: {} });
-      setStep(0); setEditIdx(null);
-    }, 2200);
+
+
+
+
+
+
+
+
+  //PDF FUNCTION
+  const generatePDF = (sample) => {
+  const doc = new jsPDF();
+
+  doc.setFillColor(255,255,255);
+  doc.rect(0,0,210,40,'F');
+
+  const imgProps = doc.getImageProperties(HayLog);
+  const imgWidth = 50;
+  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+  doc.addImage(HayLog,'PNG',(210-imgWidth)/2,5,imgWidth,imgHeight);
+
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(10);
+
+  let yPosition = 50;
+
+  // -------------------------
+  // SAMPLE INFORMATION
+  // -------------------------
+  doc.setFont('helvetica','bold');
+  doc.text('SAMPLE INFORMATION',14,yPosition);
+  doc.setFont('helvetica','normal');
+  yPosition += 8;
+
+  const sampleInfo = [
+    `Request Reference No: ${sample.requestRefNo || 'N/A'}`,
+    `Sample Reference No: ${sample.sampleRefNo || 'N/A'}`,
+    `From: ${sample.from?.join(", ") || 'N/A'}`,
+    `To: ${sample.to || 'N/A'}`,
+    `Gate Pass No: ${sample.gatePassNo || 'N/A'}`,
+    `Sample Route: ${sample.sampleRoute || 'N/A'}`,
+    `Sample IN Date: ${sample.sampleInDate || 'N/A'}`,
+    `Sample IN Time: ${sample.sampleInTime || 'N/A'}`,
+    `Remarks: ${sample.remarks || 'N/A'}`
+  ];
+
+  sampleInfo.forEach(info=>{
+    doc.text(info,16,yPosition);
+    yPosition+=6;
+  });
+
+  yPosition+=6;
+
+  // -------------------------
+  // CHILD SAMPLES
+  // -------------------------
+  doc.setFont('helvetica','bold');
+  doc.text('REGISTERED SAMPLES',14,yPosition);
+  doc.setFont('helvetica','normal');
+  yPosition+=8;
+
+  if(sample.samples && sample.samples.length > 0){
+
+    sample.samples.forEach((child,index)=>{
+
+      if(yPosition>260){
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      doc.setFont('helvetica','bold');
+      doc.text(`Sample ${index+1} : ${child.sampleId}`,16,yPosition);
+      doc.setFont('helvetica','normal');
+      yPosition+=6;
+
+      const details = [
+        `Test Method: ${child.testMethod || '-'}`,
+        `Unit Number: ${child.unitNumber || '-'}`,
+        `Analysed By: ${child.analysedBy || '-'}`,
+        `Completed Date: ${child.completedDate || '-'}`,
+        `Completed Time: ${child.completedTime || '-'}`
+      ];
+
+      details.forEach(d=>{
+        doc.text(d,18,yPosition);
+        yPosition+=5;
+      });
+
+      // results map
+      const results = child.results ? Object.entries(child.results) : [];
+
+      if(results.length > 0){
+
+        doc.text("Results:",18,yPosition);
+        yPosition+=5;
+
+        results.forEach(([k,v])=>{
+          doc.text(`${k} : ${v}`,22,yPosition);
+          yPosition+=5;
+        });
+
+      }else{
+        doc.text("Results: None",18,yPosition);
+        yPosition+=5;
+      }
+
+      yPosition+=5;
+
+    });
+
+  }else{
+    doc.text("No samples available",16,yPosition);
+  }
+
+  // -------------------------
+  // FOOTER
+  // -------------------------
+  const currentDate = new Date().toLocaleDateString();
+
+  doc.setFontSize(8);
+  doc.setTextColor(128,128,128);
+
+  doc.text(`Generated on: ${currentDate}`,14,285);
+  doc.text(`GatePass ID: ${sample._id}`,105,285,{align:"center"});
+  doc.text("Haycarb PLC - Laboratory Division",196,285,{align:"right"});
+
+  const fileName = `Sample_Report_${sample.sampleRefNo || sample._id}.pdf`;
+
+  doc.save(fileName);
+};
+
+
+
+
+
+
+//QR CODE FUNCTION 
+const generateQR = async (sample) => {
+  try {
+
+    const url = `https://hay-card-front-ends-nine.vercel.app/samples/public/${sample._id}`;
+
+    const qrDataUrl = await QRCode.toDataURL(url);
+
+    const win = window.open();
+
+    win.document.write(`
+    <div style="
+      font-family:Poppins,sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      background:linear-gradient(135deg,#e0f7fa,#ffffff);
+      padding:20px;
+      text-align:center;
+    ">
+
+    <h3 style="color:#00796b">
+      Scan this QR to view Gate Pass
+    </h3>
+
+    <img src="${qrDataUrl}" 
+         style="width:250px;height:250px;border:8px solid #00796b;border-radius:20px" />
+
+    <p style="margin-top:20px">
+      Gate Pass : <b>${sample.gatePassNo}</b><br/>
+      Samples : <b>${sample.samples?.length || 0}</b>
+    </p>
+
+    <p style="word-break:break-word">
+      <a href="${url}" target="_blank">${url}</a>
+    </p>
+
+    <button onclick="window.print()" style="
+      padding:12px 24px;
+      background:#d11d1d;
+      color:white;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      margin-top:20px;
+    ">
+      Print QR Code
+    </button>
+
+    </div>
+    `);
+
+    win.document.close();
+
+  } catch(err){
+    console.error("QR generation error:",err);
+  }
+};
+
+
+useEffect(() => {
+  const fetchSamples = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/samples");
+      const data = await res.json();
+
+      console.log("API Response:", data);
+
+      setHistory(Array.isArray(data) ? data : data.data || []);
+
+    } catch (err) {
+      console.error("Failed fetching samples", err);
+    }
   };
+
+  fetchSamples();
+}, []);
+
+const deleteSampleDB = async (id) => {
+  if (!window.confirm("Delete this gate pass?")) return;
+
+  try {
+    await fetch(`http://localhost:5001/samples/${id}`, {
+      method: "DELETE",
+    });
+
+    setHistory(prev => prev.filter(s => s._id !== id));
+
+    setToast({
+      message: "Gate pass deleted",
+      type: "info",
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+const editGatePass = (sample) => {
+  setGP(sample);
+  setTab("gatepass");
+};
+
+ <style>{`
+        button.bpri {
+          background: #2563eb;
+          color: #fff;
+          border: none;
+          border-radius: 7px;
+          padding: 9px 14px;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        button.bpri:hover { background: #1d4ed8; }
+
+        button.bghost {
+          background: #fff;
+          color: #374151;
+          border: 1px solid #e5e7eb;
+          border-radius: 7px;
+          padding: 9px 14px;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        button.bghost:hover { background: #f3f4f6; }
+
+        button.bdanger {
+          background: #ef4444;
+          color: #fff;
+          border: none;
+          border-radius: 7px;
+          padding: 9px 14px;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        button.bdanger:hover { background: #dc2626; }
+  
+      `}</style>
+
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!gp.requestRefNo || !gp.gatePassNo) {
+    setToast({ message: "Fill all required fields.", type: "error" });
+    return;
+  }
+
+  if (gp.samples.length === 0) {
+    setToast({ message: "Add at least one sample.", type: "error" });
+    return;
+  }
+
+  try {
+    setSubmitting(true);
+
+    const response = await fetch("http://localhost:5001/samples/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(gp),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to save");
+    }
+
+    setToast({
+      message: "Samples saved to database successfully",
+      type: "success",
+    });
+
+    setHistory((h) => [{ ...gp, savedAt: new Date().toLocaleString() }, ...h]);
+
+    setStep(2);
+
+  } catch (error) {
+    console.error(error);
+    setToast({
+      message: "Database save failed",
+      type: "error",
+    });
+  }
+
+  setSubmitting(false);
+};
 
   const filtered = gp.samples.filter(s =>
     s.sampleId.toLowerCase().includes(search.toLowerCase()) ||
@@ -193,6 +517,40 @@ export default function App() {
     if (sortCol === col) setSortDir(d => d === "asc" ? "desc" : "asc");
     else { setSortCol(col); setSortDir("asc"); }
   };
+  const btnBase = {
+  border: "none",
+  borderRadius: 7,
+  padding: "8px 14px",
+  fontSize: 13,
+  fontWeight: 600,
+  fontFamily: "inherit",
+  cursor: "pointer",
+  transition: "background 0.15s",
+};
+
+const btnBlue = {
+  ...btnBase,
+  backgroundColor: "#2563eb",
+  color: "#fff",
+};
+
+const btnDark = {
+  ...btnBase,
+  backgroundColor: "#374151",
+  color: "#fff",
+};
+
+const btnEdit = {
+  ...btnBase,
+  backgroundColor: "#f59e0b", // amber
+  color: "#fff",
+};
+
+const btnDelete = {
+  ...btnBase,
+  backgroundColor: "#ef4444",
+  color: "#fff",
+};
 
   return (
     <div style={{ display: "flex", height: "100vh", background: "#f3f4f6", fontFamily: "'Segoe UI', system-ui, sans-serif", fontSize: 13, color: "#111827" }}>
@@ -482,33 +840,154 @@ export default function App() {
 
           {/* History Tab */}
           {tab === "history" && (
-            <div style={{ maxWidth: 960, margin: "0 auto" }}>
-              {history.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "80px 20px" }}>
-                   
-                  <div style={{ fontWeight: 700, fontSize: 15, color: "#374151" }}>No submissions yet</div>
-                  <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 6 }}>Submitted gate passes will appear here</div>
-                </div>
-              ) : history.map((h, i) => (
-                <div key={i} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, marginBottom: 14, overflow: "hidden", animation: `fadeUp 0.18s ease ${i * 0.04}s both` }}>
-                  <div style={{ padding: "14px 22px", borderBottom: "1px solid #f3f4f6", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: "#111827" }}>Gate Pass — {h.gatePassNo || "N/A"}</div>
-                      <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{h.savedAt} · {h.samples.length} sample{h.samples.length !== 1 ? "s" : ""} · {h.from[0]}</div>
-                    </div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: "rgb(141, 198, 63)", background: "#f0fdf4", border: "1px solid rgb(141, 198, 63)", borderRadius: 6, padding: "3px 10px" }}>Submitted</span>
-                  </div>
-                  <div style={{ padding: "14px 22px", display: "flex", flexWrap: "wrap", gap: "8px 24px", fontSize: 12 }}>
-                    <span style={{ color: "#6b7280" }}>Request Ref: <b style={{ color: "#111827" }}>{h.requestRefNo || "—"}</b></span>
-                    <span style={{ color: "#6b7280" }}>Sample Ref: <b style={{ color: "#111827" }}>{h.sampleRefNo || "—"}</b></span>
-                    <span style={{ color: "#6b7280" }}>Route: <b style={{ color: "#111827" }}>{h.sampleRoute}</b></span>
-                    <span style={{ color: "#6b7280" }}>Date: <b style={{ color: "#111827" }}>{h.sampleInDate}</b></span>
-                    {h.remarks && <span style={{ color: "#6b7280" }}>Remarks: <b style={{ color: "#111827" }}>{h.remarks}</b></span>}
-                  </div>
-                </div>
-              ))}
+  <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+
+    {history.length === 0 ? (
+      <div style={{ textAlign: "center", padding: 80 }}>
+        <h3>No Samples Found</h3>
+      </div>
+    ) : history.map((sample, i) => (
+
+      <div key={sample._id}
+        style={{
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          borderRadius: 10,
+          marginBottom: 18,
+          overflow: "hidden"
+        }}
+      >
+
+        {/* HEADER */}
+        <div style={{
+          padding: 16,
+          borderBottom: "1px solid #e5e7eb",
+          display: "flex",
+          justifyContent: "space-between"
+        }}>
+
+          <div>
+            <div style={{ fontWeight: 700 }}>
+              Gate Pass : {sample.gatePassNo}
             </div>
-          )}
+
+            <div style={{ fontSize: 12, color: "#6b7280" }}>
+              {sample.sampleRoute} · {sample.from?.join(",")}
+            </div>
+          </div>
+
+
+          <div style={{ display: "flex", gap: 8 }}>
+
+            <button
+              onClick={() => generateQR(sample)}
+              style={btnBlue}
+            >
+              QR
+            </button>
+
+            <button
+              onClick={() => generatePDF(sample)}
+              style={btnDark}
+            >
+              PDF
+            </button>
+
+            <button
+              onClick={() => editGatePass(sample)}
+              style={btnEdit}
+            >
+              Edit
+            </button>
+
+            <button
+              onClick={() => deleteSampleDB(sample._id)}
+              style={btnDelete}
+            >
+              Delete
+            </button>
+
+          </div>
+        </div>
+
+
+        {/* GATEPASS DETAILS */}
+        <div style={{
+          padding: 16,
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          gap: 10,
+          fontSize: 13
+        }}>
+
+          <div><b>Request Ref</b><br />{sample.requestRefNo}</div>
+          <div><b>Sample Ref</b><br />{sample.sampleRefNo}</div>
+          <div><b>Date</b><br />{sample.sampleInDate}</div>
+          <div><b>Time</b><br />{sample.sampleInTime}</div>
+
+        </div>
+
+
+        {/* CHILD SAMPLES TABLE */}
+        <div style={{ padding: 16 }}>
+
+          <table style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: 12
+          }}>
+
+            <thead>
+              <tr style={{ background: "#f9fafb" }}>
+                <th>Sample ID</th>
+                <th>Method</th>
+                <th>Unit</th>
+                <th>Results</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {sample.samples.map((s, idx) => (
+
+                <tr key={idx} style={{ borderTop: "1px solid #eee" }}>
+
+                  <td>{s.sampleId}</td>
+                  <td>{s.testMethod}</td>
+                  <td>{s.unitNumber}</td>
+
+                  <td>
+
+                    {Object.entries(s.results || {}).map(([k, v]) => (
+                      <span key={k}
+                        style={{
+                          marginRight: 6,
+                          background: "#eff6ff",
+                          padding: "3px 6px",
+                          borderRadius: 4
+                        }}>
+                        {k}:{v}
+                      </span>
+                    ))}
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+)}
         </main>
       </div>
     </div>
