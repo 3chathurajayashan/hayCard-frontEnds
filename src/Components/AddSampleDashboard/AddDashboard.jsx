@@ -366,7 +366,7 @@ const generateQR = async (sample) => {
 useEffect(() => {
   const fetchSamples = async () => {
     try {
-      const res = await fetch("https://hay-card-back-end-iota.vercel.app/samples");
+      const res = await fetch("https://hay-card-back-end-iota.vercel.app/api/samples");
       const data = await res.json();
 
       console.log("API Response:", data);
@@ -470,7 +470,7 @@ const handleSubmit = async (e) => {
   try {
     setSubmitting(true);
 
-    const response = await fetch("http://localhost:5001/samples/", {
+    const response = await fetch("https://hay-card-back-end-iota.vercel.app/api/samples/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
