@@ -366,7 +366,7 @@ const generateQR = async (sample) => {
 useEffect(() => {
   const fetchSamples = async () => {
     try {
-      const res = await fetch("http://localhost:5001/samples");
+      const res = await fetch("https://hay-card-back-end-iota.vercel.app/samples");
       const data = await res.json();
 
       console.log("API Response:", data);
