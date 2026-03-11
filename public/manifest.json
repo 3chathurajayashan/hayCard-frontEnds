@@ -1,0 +1,21 @@
+{
+  "short_name": "Studly",
+  "name": "Studly LMS",
+  "icons": [
+    {
+      "src": "/icons/i5.jpg",
+      "type": "image/png/jpg",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/i5.jpg",
+      "type": "image/png/jpg",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#4f46e5"
+}
