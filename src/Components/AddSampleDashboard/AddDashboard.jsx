@@ -300,65 +300,53 @@ export default function App() {
 
 
 
+ 
 
-//QR CODE FUNCTION 
-const generateQR = async (sample) => {
+const generateQR = async (gatePass) => {
   try {
-
-    const url = `https://hay-card-front-ends-nine.vercel.app/samples/public/${sample.sampleId}`;
+    const url = `https://hay-card-back-end-iota.vercel.app/api/samples/public/${gatePass._id}`;
 
     const qrDataUrl = await QRCode.toDataURL(url);
 
     const win = window.open();
 
     win.document.write(`
-    <div style="
-      font-family:Poppins,sans-serif;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      min-height:100vh;
-      background:linear-gradient(135deg,#e0f7fa,#ffffff);
-      padding:20px;
-      text-align:center;
-    ">
-
-    <h3 style="color:#00796b">
-      Scan this QR to view Gate Pass
-    </h3>
-
-    <img src="${qrDataUrl}" 
-         style="width:250px;height:250px;border:8px solid #00796b;border-radius:20px" />
-
-    <p style="margin-top:20px">
-      Gate Pass : <b>${sample.gatePassNo}</b><br/>
-      Samples : <b>${sample.samples?.length || 0}</b>
-    </p>
-
-    <p style="word-break:break-word">
-      <a href="${url}" target="_blank">${url}</a>
-    </p>
-
-    <button onclick="window.print()" style="
-      padding:12px 24px;
-      background:#d11d1d;
-      color:white;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      margin-top:20px;
-    ">
-      Print QR Code
-    </button>
-
-    </div>
+      <div style="
+        font-family:Poppins,sans-serif;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        min-height:100vh;
+        background:linear-gradient(135deg,#e0f7fa,#ffffff);
+        padding:20px;
+        text-align:center;
+      ">
+        <h3 style="color:#00796b">Scan this QR to view Gate Pass</h3>
+        <img src="${qrDataUrl}" style="width:250px;height:250px;border:8px solid #00796b;border-radius:20px" />
+        <p style="margin-top:20px">
+          Gate Pass : <b>${gatePass.gatePassNo}</b><br/>
+          Samples : <b>${gatePass.samples?.length || 0}</b>
+        </p>
+        <p style="word-break:break-word">
+          <a href="${url}" target="_blank">${url}</a>
+        </p>
+        <button onclick="window.print()" style="
+          padding:12px 24px;
+          background:#d11d1d;
+          color:white;
+          border:none;
+          border-radius:8px;
+          cursor:pointer;
+          margin-top:20px;
+        ">Print QR Code</button>
+      </div>
     `);
 
     win.document.close();
 
-  } catch(err){
-    console.error("QR generation error:",err);
+  } catch (err) {
+    console.error("QR generation error:", err);
   }
 };
 
@@ -880,7 +868,7 @@ const btnDelete = {
           <div style={{ display: "flex", gap: 8 }}>
 
             <button
-              onClick={() => generateQR(sample)}
+              onClick={() => generateQR(gatePass)}
               style={btnBlue}
             >
               QR
