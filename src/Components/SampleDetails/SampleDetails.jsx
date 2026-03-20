@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation, useSearchParams } from "react-router-dom";
 
-const BACKEND_URL = "https://hay-card-back-end.vercel.app";
+ 
 
 export default function SampleDetails() {
   const [sample, setSample] = useState(null);

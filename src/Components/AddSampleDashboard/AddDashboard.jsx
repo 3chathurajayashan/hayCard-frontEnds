@@ -305,7 +305,7 @@ export default function App() {
 const generateQR = async (sample) => {
   try {
 
-    const url = `https://hay-card-front-ends-nine.vercel.app/samples/public/${sample._id}`;
+    const url = `https://hay-card-front-ends-nine.vercel.app/samples/public/${sample.sampleId}`;
 
     const qrDataUrl = await QRCode.toDataURL(url);
 
@@ -893,12 +893,7 @@ const btnDelete = {
               PDF
             </button>
 
-            <button
-              onClick={() => editGatePass(sample)}
-              style={btnEdit}
-            >
-              Edit
-            </button>
+             
 
             <button
               onClick={() => deleteSampleDB(sample._id)}
