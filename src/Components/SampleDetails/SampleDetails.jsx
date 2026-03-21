@@ -4,27 +4,61 @@ import { useParams } from "react-router-dom";
 export default function ViewGatePass() {
   const { id } = useParams();
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`https://hay-card-back-end-iota.vercel.app/api/samples/public/${id}`)
       .then(res => res.json())
-      .then(res => setData(res.data));
+      .then(res => {
+        setData(res.data || null);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching gate pass:", err);
+        setLoading(false);
+      });
   }, [id]);
 
-  if (!data) return <div>Loading...</div>;
+  if (loading) return <div style={{ padding: 30 }}>Loading...</div>;
+  if (!data) return <div style={{ padding: 30 }}>Gate Pass not found.</div>;
 
   return (
-    <div style={{ padding: 30 }}>
-      <h2>Gate Pass {data.gatePassNo}</h2>
+    <div style={{
+      padding: 30,
+      fontFamily: "Poppins, sans-serif",
+      maxWidth: 800,
+      margin: "0 auto",
+      background: "#f7f9fc",
+      borderRadius: 12,
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+    }}>
+      <h2 style={{ color: "#00796b", marginBottom: 20 }}>Gate Pass {data.gatePassNo}</h2>
 
-      <p><b>Request:</b> {data.requestRefNo}</p>
-      <p><b>Date:</b> {data.sampleInDate}</p>
+      <p><b>Request Ref No:</b> {data.requestRefNo || "N/A"}</p>
+      <p><b>Date:</b> {data.sampleInDate || "N/A"}</p>
+      <p><b>From:</b> {Array.isArray(data.from) ? data.from.join(", ") : data.from || "N/A"}</p>
+      <p><b>To:</b> {Array.isArray(data.to) ? data.to.join(", ") : data.to || "N/A"}</p>
+      <p><b>Created By:</b> {data.createdBy?.name || "N/A"} ({data.createdBy?.email || "N/A"})</p>
+      <p><b>Assigned To:</b> {data.assignedTo?.name || "N/A"} ({data.assignedTo?.email || "N/A"})</p>
 
-      {data.samples.map((s,i)=>(
-        <div key={i}>
-          {s.sampleId} - {s.testMethod}
-        </div>
-      ))}
+      <h3 style={{ marginTop: 30, color: "#004d40" }}>Samples</h3>
+      {Array.isArray(data.samples) && data.samples.length > 0 ? (
+        data.samples.map((s, i) => (
+          <div key={i} style={{
+            padding: 12,
+            marginBottom: 12,
+            background: "#ffffff",
+            borderRadius: 8,
+            border: "1px solid #e0e0e0"
+          }}>
+            <p><b>Sample ID:</b> {s.sampleId || "N/A"}</p>
+            <p><b>Test Method:</b> {s.testMethod || "N/A"}</p>
+            <p><b>Remarks:</b> {s.remarks || "N/A"}</p>
+          </div>
+        ))
+      ) : (
+        <p>No samples available.</p>
+      )}
     </div>
   );
 }
