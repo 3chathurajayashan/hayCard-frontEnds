@@ -57,7 +57,7 @@ const router = createBrowserRouter([
   { path: '/sampleassign', element: <SampleAssign /> },
   { path: '/sampleout', element: <Sampleout /> },
   { path: '/chatbot', element: <Chat /> },
-  { path: '/samples/public/:id', element: <PublicSample /> },
+  
   { path:"/view/:id" ,element: <PublicSample />},
 ])
 
