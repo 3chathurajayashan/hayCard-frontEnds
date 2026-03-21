@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
+import jsPDF from "jspdf";
+import haylog from '../../assets/logo.png'
 
 const ROUTES = ["Direct from Madampe", "Direct from Badalgama", "Through Wewalduwa"];
 const ORIGINS = ["HCM", "HCB", "HCM HCB"];
@@ -181,10 +183,10 @@ export default function App() {
   doc.setFillColor(255,255,255);
   doc.rect(0,0,210,40,'F');
 
-  const imgProps = doc.getImageProperties(HayLog);
+  const imgProps = doc.getImageProperties(haylog);
   const imgWidth = 50;
   const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-  doc.addImage(HayLog,'PNG',(210-imgWidth)/2,5,imgWidth,imgHeight);
+  doc.addImage(haylog,'PNG',(210-imgWidth)/2,5,imgWidth,imgHeight);
 
   doc.setTextColor(0,0,0);
   doc.setFontSize(10);
@@ -379,6 +381,12 @@ useEffect(() => {
 
   fetchSamples();
 }, []);
+const handleLogout = () => {
+  // clear anything if needed (optional)
+  // localStorage.clear();
+
+  window.location.href = "/";
+};
 
 const deleteSampleDB = async (id) => {
   if (!window.confirm("Delete this gate pass?")) return;
@@ -617,6 +625,45 @@ const btnDelete = {
             </button>
           ))}
         </nav>
+<button
+  onClick={handleLogout}
+  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f56512")}
+  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#e91f1b")}
+  style={{
+    margin: "10px 18px",
+    padding: "10px 24px",
+    borderRadius: "20px",
+    border: "none",
+    background: "#e91f1b",
+    color: "#ffffff",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    transition: "all 0.2s ease-in-out",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px"
+  }}
+>
+  <svg 
+    width="18" 
+    height="18" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+  Logout
+</button>
 
         <div style={{ padding: "14px 18px", borderTop: "1px solid #f3f4f6" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -625,6 +672,7 @@ const btnDelete = {
           </div>
           <div style={{ fontSize: 10, color: "#d1d5db", marginTop: 4 }}>HAYCARB PLC</div>
         </div>
+        
       </aside>
 
       {/* Main */}
@@ -697,9 +745,9 @@ const btnDelete = {
                     <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{editIdx !== null ? "Modify entry and update" : "Fill fields and include in register"}</div>
                   </div>
                   <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 13 }}>
-                    <TextInput label="Sample ID" value={sForm.sampleId} onChange={v => setSForm(p => ({ ...p, sampleId: v }))} placeholder="S-001" />
-                    <TextInput label="Test Method" value={sForm.testMethod} onChange={v => setSForm(p => ({ ...p, testMethod: v }))} placeholder="ISO 4406" />
-                    <TextInput label="Unit Number" value={sForm.unitNumber} onChange={v => setSForm(p => ({ ...p, unitNumber: v }))} placeholder="UNT-001" />
+                    <TextInput label="Sample ID" value={sForm.sampleId} onChange={v => setSForm(p => ({ ...p, sampleId: v }))} placeholder="S-001" required/>
+                    <TextInput label="Test Method" value={sForm.testMethod} onChange={v => setSForm(p => ({ ...p, testMethod: v }))} placeholder="ISO 4406"  required/>
+                    <TextInput label="Unit " value={sForm.unitNumber} onChange={v => setSForm(p => ({ ...p, unitNumber: v }))} placeholder="UNT-001" required/>
 
                     <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 13 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
