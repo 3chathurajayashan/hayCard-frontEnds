@@ -8,6 +8,7 @@ export default function ViewGatePass() {
 
   useEffect(() => {
     if (!id) return;
+
     fetch(`https://hay-card-back-end-iota.vercel.app/api/samples/public/${id}`)
       .then(res => res.json())
       .then(res => {
@@ -35,7 +36,7 @@ export default function ViewGatePass() {
       padding: 30,
       fontFamily: "Poppins, sans-serif",
       maxWidth: 800,
-      margin: "0 auto",
+      margin: "40px auto",
       background: "#f7f9fc",
       borderRadius: 12,
       boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
