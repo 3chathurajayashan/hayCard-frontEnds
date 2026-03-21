@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-export default function ViewGatePass() {
+export default function PublicSample() {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,6 +13,7 @@ export default function ViewGatePass() {
       try {
         const res = await fetch(`https://hay-card-back-end-iota.vercel.app/api/samples/public/${id}`);
         const json = await res.json();
+        // Ensure always a safe object
         setData(json?.data || {});
       } catch (err) {
         console.error("Error fetching gate pass:", err);
@@ -28,7 +29,7 @@ export default function ViewGatePass() {
   if (loading) return <div style={{ padding: 30 }}>Loading...</div>;
   if (!data || Object.keys(data).length === 0) return <div style={{ padding: 30 }}>Gate Pass not found.</div>;
 
-  // ✅ Safely handle arrays / undefined values
+  // Safe handling for arrays / undefined
   const from = Array.isArray(data.from) ? data.from.join(", ") : (data.from ?? "N/A");
   const to = Array.isArray(data.to) ? data.to.join(", ") : (data.to ?? "N/A");
   const samples = Array.isArray(data.samples) ? data.samples : [];
@@ -37,7 +38,7 @@ export default function ViewGatePass() {
     <div style={{
       padding: 30,
       fontFamily: "Poppins, sans-serif",
-      maxWidth: 800,
+      maxWidth: 900,
       margin: "40px auto",
       background: "#f7f9fc",
       borderRadius: 12,
