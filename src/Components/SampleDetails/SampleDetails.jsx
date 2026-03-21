@@ -330,7 +330,7 @@ export default function PublicSample() {
             </svg>
           </div>
           <div>
-            <div className="nav-name">Sample Tracker</div>
+            <div className="nav-name">HayCarb PLC</div>
             <div className="nav-sub">Gate Pass Portal</div>
           </div>
         </div>
