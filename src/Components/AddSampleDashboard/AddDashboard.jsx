@@ -306,7 +306,7 @@ const generateQR = async (gatePass) => {
   try {
     const url = `https://hay-card-back-end-iota.vercel.app/api/samples/public/${gatePass._id}`;
 
-    const qrDataUrl = await QRCode.toDataURL(url);
+    const qrDataUrl = await QRCode.toDataURL(url, { type: "image/jpeg" }); // generate as JPEG
 
     const win = window.open();
 
@@ -323,7 +323,7 @@ const generateQR = async (gatePass) => {
         text-align:center;
       ">
         <h3 style="color:#00796b">Scan this QR to view Gate Pass</h3>
-        <img src="${qrDataUrl}" style="width:250px;height:250px;border:8px solid #00796b;border-radius:20px" />
+        <img id="qrImg" src="${qrDataUrl}" style="width:250px;height:250px;border:8px solid #00796b;border-radius:20px" />
         <p style="margin-top:20px">
           Gate Pass : <b>${gatePass.gatePassNo}</b><br/>
           Samples : <b>${gatePass.samples?.length || 0}</b>
@@ -331,15 +331,26 @@ const generateQR = async (gatePass) => {
         <p style="word-break:break-word">
           <a href="${url}" target="_blank">${url}</a>
         </p>
-        <button onclick="window.print()" style="
+        <button id="downloadBtn" style="
           padding:12px 24px;
-          background:#d11d1d;
+          background:#00796b;
           color:white;
           border:none;
           border-radius:8px;
           cursor:pointer;
           margin-top:20px;
-        ">Print QR Code</button>
+        ">Download QR Code</button>
+
+        <script>
+          const btn = document.getElementById('downloadBtn');
+          btn.addEventListener('click', () => {
+            const img = document.getElementById('qrImg');
+            const a = document.createElement('a');
+            a.href = img.src;
+            a.download = 'GatePass_${gatePass.gatePassNo}.jpg';
+            a.click();
+          });
+        </script>
       </div>
     `);
 
