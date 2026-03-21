@@ -868,7 +868,7 @@ const btnDelete = {
           <div style={{ display: "flex", gap: 8 }}>
 
             <button
-              onClick={() => generateQR(gatePass)}
+              onClick={() => generateQR(sample)}
               style={btnBlue}
             >
               QR
