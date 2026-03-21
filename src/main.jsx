@@ -22,7 +22,7 @@ import SampleMenu from './Components/SampleMenu/SampleMenu.jsx'
 import SampleIn from './Components/SampleIn/SampleIn.jsx'
 import SampleAssign from './Components/SampleAssigns/Assign.jsx'
 import Sampleout from './Components/SampleOuts/Sampleout.jsx'
-import PublicSample from './Components/PublicSample.jsx'
+import PublicSample from './Components/SampleDetails/SampleDetails.jsx'
 import Chat from './Components/Chatbot/Chat.jsx'
 import Future from './Components/FutureSection/Future.jsx'
 import Locations from './Components/LocationsSample/Locations.jsx'
@@ -58,7 +58,7 @@ const router = createBrowserRouter([
   { path: '/sampleout', element: <Sampleout /> },
   { path: '/chatbot', element: <Chat /> },
   
-  { path:"/view/:id" ,element: <PublicSample />},
+  { path:'/view/:id' ,element: <PublicSample />},
 ])
 
 // --- Render App ---
