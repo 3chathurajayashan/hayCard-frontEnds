@@ -21,6 +21,7 @@
     "emailjs-com": "^3.2.0",
     "framer-motion": "^12.23.24",
     "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.7",
     "leaflet": "^1.9.4",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.545.0",
