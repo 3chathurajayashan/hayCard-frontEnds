@@ -43,29 +43,33 @@ export default function LabAdminDashboard() {
 
   /* ================= MARK AS RECEIVED ================= */
 /* ================= MARK AS RECEIVED ================= */
-  const markAsReceived = async (gatePassId) => {
-    if (!window.confirm("Confirm sample receipt? This cannot be undone.")) return;
+ const markAsReceived = async (gatePassId) => {
+  if (!window.confirm("Confirm sample receipt? This cannot be undone.")) return;
 
-    setReceivingGpId(gatePassId);
-    try {
-      // Backend expects PUT /api/samples/:id/received
-      await axios.put(
-        `${API_BASE}/${gatePassId}/received`,
-        {}, // Sending empty body because backend now sets isReceived to true automatically
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      // Update local state so it doesn't wait for the 30s interval
-      setSamples(prev => 
-        prev.map(gp => gp._id === gatePassId ? { ...gp, isReceived: true } : gp)
-      );
-      toast.success("Gate pass marked as Received");
-    } catch (err) {
-      toast.error("Failed to update status");
-    } finally {
-      setReceivingGpId(null);
-    }
-  };
+  setReceivingGpId(gatePassId);
+  try {
+    await axios.put(
+      `${API_BASE}/${gatePassId}/received`,
+      {}, // backend sets received = true
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // ✅ FIX: use 'received' NOT 'isReceived'
+    setSamples(prev =>
+      prev.map(gp =>
+        gp._id === gatePassId
+          ? { ...gp, received: true }
+          : gp
+      )
+    );
+
+    toast.success("Gate pass marked as Received");
+  } catch (err) {
+    toast.error("Failed to update status");
+  } finally {
+    setReceivingGpId(null);
+  }
+};
 
   const handleInlineChange = (gatePassId, sampleId, key, value) => {
     setSamples(prev =>
@@ -171,13 +175,13 @@ export default function LabAdminDashboard() {
                           </div>
 
                           <div style={styles.receiveControl}>
-                            <span style={{fontSize: '11px', fontWeight: 600, color: gp.isReceived ? '#10b981' : '#64748b'}}>
-                              {gp.isReceived ? "RECEIVED AT LAB" : "MARK AS RECEIVED"}
+                            <span style={{fontSize: '11px', fontWeight: 600, color: gp.received ? '#10b981' : '#64748b'}}>
+                              {gp.received? "RECEIVED AT LAB" : "MARK AS RECEIVED"}
                             </span>
                             <input 
                               type="checkbox" 
-                              checked={gp.isReceived || false}
-                              disabled={gp.isReceived || receivingGpId === gp._id}
+                              checked={gp.received|| false}
+                              disabled={gp.received || receivingGpId === gp._id}
                               onChange={() => markAsReceived(gp._id)}
                               style={styles.checkbox}
                             />
@@ -189,7 +193,7 @@ export default function LabAdminDashboard() {
 
                     {/* CHILD SAMPLES */}
                     {gp.samples.map(s => (
-                      <tr key={s.sampleId} style={{...styles.tr, opacity: gp.isReceived ? 1 : 0.6}}>
+                      <tr key={s.sampleId} style={{...styles.tr, opacity: gp.received ? 1 : 0.6}}>
                         <td style={styles.td}>
                           <div style={{ fontWeight: 600 }}>{s.sampleId}</div>
                         </td>
@@ -218,7 +222,7 @@ export default function LabAdminDashboard() {
                           <button
                             onClick={() => saveInlineSample(gp._id, s)}
                             style={!gp.isReceived ? styles.btnDisabled : (savingId === s.sampleId ? styles.btnLoading : styles.saveBtn)}
-                            disabled={savingId === s.sampleId || !gp.isReceived}
+                            disabled={savingId === s.sampleId || !gp.received}
                           >
                             {savingId === s.sampleId ? "..." : <FiCheckCircle size={18}/>}
                           </button>
