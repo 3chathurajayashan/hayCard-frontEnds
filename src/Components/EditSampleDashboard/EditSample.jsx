@@ -9,6 +9,8 @@ import {
   FiLoader, FiDatabase, FiActivity, FiClock, FiPackage,
   FiChevronRight, FiRefreshCw, FiDownload, FiLock,
 } from "react-icons/fi";
+import lock from '../../assets/lock.png'
+import tick from '../../assets/tik.png'
 
 const API_BASE = "https://hay-card-back-end-iota.vercel.app/api/samples";
 
@@ -86,38 +88,57 @@ function downloadGatePassPDF(gp) {
   doc.text(statusLabel, W - margin - 14, 8.2, { align:"center" });
 
   // Gate pass meta
-  let y = 40;
-  doc.setTextColor(30, 41, 59);
+let y = 40;
+doc.setTextColor(30, 41, 59);
+doc.setFont("helvetica", "bold");
+doc.setFontSize(13);
+
+// First line
+doc.text(`Gate Pass: GP-${gp.gatePassNo}`, margin, y);
+
+// Second line
+y += 7;
+doc.text(`Ref Number: ${gp.sampleRefNo}`, margin, y);
+
+y += 10; // add a bit more space before meta rows
+
+const metaRows = [
+  ["Sample Route", gp.sampleRoute  || "—"],
+  ["Sample in Date / Time",  `${gp.sampleInDate || "—"} ${gp.sampleInTime || ""}`.trim()],
+  ["received Date / Time",  `${gp.receivedDate || "—"} ${gp.receivedTime || ""}`.trim()],
+  ["Delivered From", gp.from || "—"],
+  ["Delivered To", gp.to || "—"],
+  ["Received", gp.received ? "Yes" : "No"],
+  ["Remarks", gp.remarks || "—"],
+];
+
+const lineHeight = 6; // space per line
+const labelWidth = 34; // space for label column
+const maxValueWidth = W - margin * 2 - labelWidth; // max width for value
+
+metaRows.forEach(([label, value]) => {
+  // Draw label
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text(`Gate Pass: GP-${gp.sampleRefNo}`, margin, y);
+  doc.setFontSize(8.5);
+  doc.setTextColor(71, 85, 105);
+  doc.text(`${label}:`, margin, y);
 
-  y += 7;
-  const metaRows = [
-    ["Sample Route", gp.sampleRoute  || "—"],
-    ["Date / Time",  `${gp.sampleInDate || "—"} ${gp.sampleInTime || ""}`.trim()],
-    ["Delivered To", gp.to            || "—"],
-    ["Received",     gp.received      ? "Yes" : "No"],
-    ["Remarks",      gp.remarks       || "—"],
-  ];
-  metaRows.forEach(([label, value]) => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8.5);
-    doc.setTextColor(71, 85, 105);
-    doc.text(`${label}:`, margin, y);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(15, 23, 42);
-    doc.text(String(value), margin + 34, y);
-    y += 6;
-  });
+  // Wrap value if too long
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(15, 23, 42);
+  const splitValue = doc.splitTextToSize(String(value), maxValueWidth);
+  doc.text(splitValue, margin + labelWidth, y);
 
-  // Divider
-  y += 4;
-  doc.setDrawColor(226, 232, 240);
-  doc.setLineWidth(0.4);
-  doc.line(margin, y, W - margin, y);
-  y += 8;
+  // Increment y based on number of wrapped lines
+  y += splitValue.length * lineHeight;
+});
 
+// Divider
+y += 4;
+doc.setDrawColor(226, 232, 240);
+doc.setLineWidth(0.4);
+doc.line(margin, y, W - margin, y);
+y += 8;
   // Section heading
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.5);
@@ -143,7 +164,7 @@ function downloadGatePassPDF(gp) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7);
       doc.setTextColor(29, 78, 216);
-      doc.text(`Method: ${s.testMethod}`, W - margin - 23, y + 5, { align:"center" });
+      doc.text(`Test Method: ${s.testMethod}`, W - margin - 23, y + 5, { align:"center" });
     }
     y += 11;
 
@@ -182,7 +203,7 @@ function downloadGatePassPDF(gp) {
   doc.setFontSize(7.5);
   doc.setTextColor(148, 163, 184);
   doc.text("HAYCARB Laboratory — Confidential Document", margin, pageH - 8);
-  doc.text(`GP-${gp.sampleRefNo}`, W - margin, pageH - 8, { align:"right" });
+  doc.text(`Ref no-${gp.sampleRefNo}`, W - margin, pageH - 8, { align:"right" });
 
   doc.save(`GP-${gp.sampleRefNo}_LabReport.pdf`);
 }
@@ -317,7 +338,7 @@ export default function LabAdminDashboard() {
         {/* SIDEBAR */}
         <aside style={S.sidebar}>
           <div style={S.brand}>
-            <div style={S.brandIcon}><FiDatabase size={16}/></div>
+             
             <div>
               <div style={S.brandName}>HAYCARB</div>
               <div style={S.brandSub}>Laboratory</div>
@@ -379,10 +400,10 @@ export default function LabAdminDashboard() {
           {/* Stats */}
           <div style={S.statsGrid}>
             {[
-              { label:"Total Gate Passes", value:stats.total,     icon:<FiPackage size={18}/>,     color:"#2563eb", bg:"#eff6ff" },
-              { label:"Received",          value:stats.received,  icon:<FiCheckCircle size={18}/>, color:"#059669", bg:"#ecfdf5" },
-              { label:"Pending Receipt",   value:stats.pending,   icon:<FiClock size={18}/>,       color:"#d97706", bg:"#fffbeb" },
-              { label:"Finalized",         value:stats.finalized, icon:<FiActivity size={18}/>,    color:"#7c3aed", bg:"#f5f3ff" },
+              { label:"Total Gate Passes", value:stats.total,            bg:"#ffffff" },
+              { label:"Received",          value:stats.received,     bg:"#ffffff" },
+              { label:"Pending Receipt",   value:stats.pending,    bg:"#ffffff" },
+              { label:"Finalized",         value:stats.finalized,  bg:"#ffffff" },
             ].map((s,i) => (
               <div key={i} className="stat-card" style={S.statCard}>
                 <div style={{ ...S.statIcon, background:s.bg, color:s.color }}>{s.icon}</div>
@@ -442,25 +463,33 @@ function GatePassCard({ gp, receivingGpId, finalizingId, savingId,
   return (
     <div style={{
       ...S.gpCard,
-      borderLeft:`3px solid ${finalized ? "#2563eb" : received ? "#10b981" : "#e2e8f0"}`,
+      borderLeft:`3px solid ${finalized ? "#ffffff" : received ? "#ffffff" : "#1165d2"}`,
     }}>
       {/* Header */}
       <div style={S.gpHead}>
         <div style={S.gpHeadLeft}>
           <span style={{
             ...S.refBadge,
-            background: finalized ? "#eff6ff" : received ? "#ecfdf5" : "#f1f5f9",
-            color:      finalized ? "#2563eb" : received ? "#059669" : "#475569",
-            border:`1px solid ${finalized ? "#bfdbfe" : received ? "#a7f3d0" : "#e2e8f0"}`,
+            background: finalized ? "#eff6ff" : received ? "#ffffff" : "#ffffff",
+            color:      finalized ? "#2563eb" : received ? "#eb1515" : "#475569",
+            border:`1px solid ${finalized ? "#bfdbfe" : received ? "#010101" : "#e2e8f0"}`,
           }}>
-            {finalized ? "🔒 " : received ? "✓ " : ""}GP-{gp.sampleRefNo}
+           <span className="gatepass-label">
+  {finalized ? (
+    <img src={lock} alt="lock" className="inline w-4 h-4 mr-1" />
+  ) : received ? (
+    <img src={tick}alt="check" className="inline w-4 h-4 mr-1" />
+  ) : null}
+  GP-{gp.gatePassNo}
+</span>
           </span>
           <div style={S.gpMeta}>
             <span style={S.gpRoute}>{gp.sampleRoute}</span>
             <span style={S.gpDot}>·</span>
             <span style={S.gpTime}>{gp.sampleInDate} {gp.sampleInTime}</span>
             {gp.to      && <><span style={S.gpDot}>·</span><span style={S.gpTime}>To: {gp.to}</span></>}
-            {gp.remarks && <><span style={S.gpDot}>·</span><span style={S.gpTime}>{gp.remarks}</span></>}
+             {gp.sampleRefNo      && <><span style={S.gpDot}>·</span><span style={S.gpTime}>Ref No: {gp.sampleRefNo}</span></>}
+            {gp.remarks && <><span style={S.gpDot}>·</span><span style={S.gpTime}>Remarks :{gp.remarks}</span></>}
           </div>
         </div>
 
@@ -468,11 +497,11 @@ function GatePassCard({ gp, receivingGpId, finalizingId, savingId,
           {/* Mark received */}
           <div style={{
             ...S.receiveToggle,
-            background:  received ? "#f0fdf4" : "#f8fafc",
-            borderColor: received ? "#bbf7d0" : "#e2e8f0",
+            background:  received ? "#ff6f00" : "#ffffff",
+            borderColor: received ? "#ffffff" : "#e2e8f0",
           }}>
             <span style={{ fontSize:10, fontWeight:700, letterSpacing:.5,
-              color: received ? "#059669" : "#94a3b8" }}>
+              color: received ? "#ffffff" : "#94a3b8" }}>
               {received ? "RECEIVED" : "MARK RECEIVED"}
             </span>
             {isReceiving
@@ -598,31 +627,30 @@ function GatePassCard({ gp, receivingGpId, finalizingId, savingId,
 const S = {
   root:{ display:"flex", minHeight:"100vh", background:"#f8fafc", fontFamily:"'DM Sans',sans-serif", color:"#0f172a" },
 
-  sidebar:{ width:220, background:"#fff", borderRight:"1px solid #e2e8f0", display:"flex", flexDirection:"column", padding:"28px 16px", position:"fixed", height:"100vh", zIndex:10 },
+  sidebar:{ width:220, background:"#123577", borderRight:"1px solid #e2e8f0", display:"flex", flexDirection:"column", padding:"28px 16px", position:"fixed", height:"100vh", zIndex:10 },
   brand:    { display:"flex", alignItems:"center", gap:12, marginBottom:36 },
   brandIcon:{ width:34, height:34, borderRadius:10, background:"#2563eb", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" },
-  brandName:{ fontSize:14, fontWeight:700, letterSpacing:.5, color:"#0f172a" },
-  brandSub: { fontSize:11, color:"#94a3b8" },
-  sideSection:{ fontSize:9, fontWeight:700, letterSpacing:1.2, color:"#cbd5e1", margin:"16px 0 8px 8px" },
-  navItem:{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:8, cursor:"pointer", fontSize:13.5, fontWeight:500, color:"#64748b", marginBottom:2, transition:"all .15s" },
-  navItemActive:{ background:"#eff6ff", color:"#2563eb", fontWeight:600 },
+  brandName:{ fontSize:25, fontWeight:700, letterSpacing:.5, color:"#ffffff" },
+  brandSub: { fontSize:14, color:"#bcbfc3" },
+  sideSection:{ fontSize:9, fontWeight:700, letterSpacing:1.2, color:"#fbfbfb", margin:"16px 0 8px 8px" },
+  navItem:{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:8, cursor:"pointer", fontSize:13.5, fontWeight:500, color:"#ffffff", marginBottom:2, transition:"all .15s" },
+  navItemActive:{ background:"#f6faff", color:"#000000", fontWeight:600 },
   syncBox:{ display:"flex", alignItems:"flex-start", gap:8, background:"#f8fafc", border:"1px solid #e2e8f0", borderRadius:8, padding:"10px 12px" },
-  logoutBtn:{ display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:8, border:"none", cursor:"pointer", background:"transparent", color:"#ef4444", fontSize:13, fontWeight:500, marginTop:"auto", transition:"all .15s" },
+  logoutBtn:{ display:"flex", alignItems:"center", gap:8, padding:"10px 12px", borderRadius:8, border:"none", cursor:"pointer", background:"transparent", color:"#fc0404", fontSize:13, fontWeight:500, marginTop:"auto", transition:"all .15s" },
 
   main:{ flex:1, marginLeft:220, padding:"36px 40px", minHeight:"100vh" },
   header:{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:28 },
-  pageTitle:{ fontSize:22, fontWeight:700, color:"#0f172a", letterSpacing:-.3 },
+  pageTitle:{ fontSize:27, fontWeight:700, color:"#0f172a", letterSpacing:-.3 },
   pageSubtitle:{ fontSize:13, color:"#94a3b8", marginTop:3 },
   headerActions:{ display:"flex", alignItems:"center", gap:8 },
   searchWrap:{ display:"flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, padding:"8px 14px", boxShadow:"0 1px 2px rgba(0,0,0,.04)", width:270 },
   searchInput:{ border:"none", outline:"none", fontSize:13, width:"100%", background:"transparent", color:"#0f172a" },
   refreshBtn:{ width:36, height:36, border:"1px solid #e2e8f0", borderRadius:8, background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#64748b", transition:"all .15s" },
-
   statsGrid:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:28 },
   statCard:{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:12, padding:"18px 20px", display:"flex", alignItems:"center", gap:14, boxShadow:"0 1px 3px rgba(0,0,0,.04)" },
   statIcon:{ width:40, height:40, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 },
-  statValue:{ fontSize:22, fontWeight:700, color:"#0f172a", lineHeight:1 },
-  statLabel:{ fontSize:12, color:"#94a3b8", marginTop:3, fontWeight:500 },
+  statValue:{ fontSize:29, fontWeight:700, color:"#0f172a", lineHeight:1 },
+  statLabel:{ fontSize:15, color:"#94a3b8", marginTop:3, fontWeight:500 },
 
   loader:{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, minHeight:200 },
   cardList:{ display:"flex", flexDirection:"column", gap:16 },
@@ -660,9 +688,9 @@ const S = {
 
   lockedChip:{ display:"flex", alignItems:"center", gap:4, fontSize:10, color:"#64748b", fontWeight:600, padding:"3px 8px", background:"#f1f5f9", borderRadius:5 },
 
-  badgeGreen:{ background:"#dcfce7", color:"#15803d", padding:"3px 10px", borderRadius:6, fontSize:11, fontWeight:600 },
-  badgeAmber:{ background:"#fef3c7", color:"#b45309", padding:"3px 10px", borderRadius:6, fontSize:11, fontWeight:600 },
-  badgeBlue: { background:"#dbeafe", color:"#1d4ed8", padding:"3px 10px", borderRadius:6, fontSize:11, fontWeight:600 },
+  badgeGreen:{ background:"#9de92b", color:"#ffffff", padding:"5px 19px", borderRadius:6, fontSize:14, fontWeight:400 },
+  badgeAmber:{ background:"#ff0000", color:"#ffffff", padding:"3px 10px", borderRadius:6, fontSize:11, fontWeight:600 },
+  badgeBlue: { background:"#267df6", color:"#ffffff", padding:"3px 10px", borderRadius:6, fontSize:11, fontWeight:600 },
   badgeGray: { background:"#f1f5f9", color:"#64748b", padding:"3px 10px", borderRadius:6, fontSize:11, fontWeight:600 },
 
   btnSave:  { width:32, height:32, border:"none", borderRadius:7, background:"#2563eb", color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"all .15s" },
