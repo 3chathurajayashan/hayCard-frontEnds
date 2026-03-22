@@ -274,7 +274,7 @@ const generatePDF = (sample) => {
       // Sample Details Table
       const childDetails = [
         ["Test Method", child.testMethod || '-'],
-        ["Unit Number", child.unitNumber || '-'],
+        ["Unit ", child.unitNumber || '-'],
       ];
 
       // header row
