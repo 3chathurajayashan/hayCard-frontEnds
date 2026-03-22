@@ -745,9 +745,9 @@ const btnDelete = {
                     <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{editIdx !== null ? "Modify entry and update" : "Fill fields and include in register"}</div>
                   </div>
                   <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 13 }}>
-                    <TextInput label="Sample ID" value={sForm.sampleId} onChange={v => setSForm(p => ({ ...p, sampleId: v }))} placeholder="S-001" required/>
-                    <TextInput label="Test Method" value={sForm.testMethod} onChange={v => setSForm(p => ({ ...p, testMethod: v }))} placeholder="ISO 4406"  required/>
-                    <TextInput label="Unit " value={sForm.unitNumber} onChange={v => setSForm(p => ({ ...p, unitNumber: v }))} placeholder="UNT-001" required/>
+                    <TextInput label="Sample ID" value={sForm.sampleId} onChange={v => setSForm(p => ({ ...p, sampleId: v }))} placeholder="S-001"  />
+                    <TextInput label="Test Method" value={sForm.testMethod} onChange={v => setSForm(p => ({ ...p, testMethod: v }))} placeholder="ISO 4406"   />
+                    <TextInput label="Unit " value={sForm.unitNumber} onChange={v => setSForm(p => ({ ...p, unitNumber: v }))} placeholder="UNT-001"  />
 
                     <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 13 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
