@@ -315,7 +315,7 @@ export default function LabAdminDashboard() {
     }
     setSavingAnalystId(gatePassId);
     try {
-      await axios.patch(
+      await axios.put(
         `${API_BASE}/${gatePassId}/analysedBy`,
         { analysedBy: analysedBy.trim() },
         { headers: { Authorization: `Bearer ${token}` } }

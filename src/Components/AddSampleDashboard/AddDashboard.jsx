@@ -175,130 +175,188 @@ export default function App() {
 
 
 
-
-  //PDF FUNCTION
-  const generatePDF = (sample) => {
+//PDF FUNCTION
+const generatePDF = (sample) => {
   const doc = new jsPDF();
 
-  doc.setFillColor(255,255,255);
-  doc.rect(0,0,210,40,'F');
+  // -------------------------
+  // HEADER
+  // -------------------------
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, 210, 40, 'F');
 
   const imgProps = doc.getImageProperties(haylog);
   const imgWidth = 50;
   const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-  doc.addImage(haylog,'PNG',(210-imgWidth)/2,5,imgWidth,imgHeight);
+  doc.addImage(haylog, 'PNG', (210 - imgWidth) / 2, 5, imgWidth, imgHeight);
 
-  doc.setTextColor(0,0,0);
+  doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
 
   let yPosition = 50;
 
   // -------------------------
-  // SAMPLE INFORMATION
+  // SAMPLE INFORMATION TABLE
   // -------------------------
-  doc.setFont('helvetica','bold');
-  doc.text('SAMPLE INFORMATION',14,yPosition);
-  doc.setFont('helvetica','normal');
+  doc.setFont('helvetica', 'bold');
+  doc.text('SAMPLE INFORMATION', 14, yPosition);
   yPosition += 8;
 
   const sampleInfo = [
-    `Request Reference No: ${sample.requestRefNo || 'N/A'}`,
-    `Sample Reference No: ${sample.sampleRefNo || 'N/A'}`,
-    `From: ${sample.from?.join(", ") || 'N/A'}`,
-    `To: ${sample.to || 'N/A'}`,
-    `Gate Pass No: ${sample.gatePassNo || 'N/A'}`,
-    `Sample Route: ${sample.sampleRoute || 'N/A'}`,
-    `Sample IN Date: ${sample.sampleInDate || 'N/A'}`,
-    `Sample IN Time: ${sample.sampleInTime || 'N/A'}`,
-    `Remarks: ${sample.remarks || 'N/A'}`
+    ["Request Reference No", sample.requestRefNo || 'N/A'],
+    ["Sample Reference No", sample.sampleRefNo || 'N/A'],
+    ["From", sample.from?.join(", ") || 'N/A'],
+    ["To", sample.to || 'N/A'],
+    ["Gate Pass No", sample.gatePassNo || 'N/A'],
+    ["Sample Route", sample.sampleRoute || 'N/A'],
+    ["Sample IN Date", sample.sampleInDate || 'N/A'],
+    ["Sample IN Time", sample.sampleInTime || 'N/A'],
+    ["Remarks", sample.remarks || 'N/A'],
+    ["Analysed By", sample.analysedBy || '-'],
+    ["Received Date", sample.receivedDate || '-'],
+    ["Received Time", sample.receivedTime || '-']
   ];
 
-  sampleInfo.forEach(info=>{
-    doc.text(info,16,yPosition);
-    yPosition+=6;
+  const col1X = 16;
+  const col2X = 90;
+  const rowHeight = 6;
+
+  // Draw header background
+  doc.setFillColor(41, 128, 185);
+  doc.rect(col1X - 2, yPosition - 4, 170, rowHeight, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Field', col1X, yPosition);
+  doc.text('Details', col2X, yPosition);
+  yPosition += rowHeight;
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+
+  // Draw each row
+  sampleInfo.forEach(([label, value], index) => {
+    // alternate row shading
+    if (index % 2 === 0) {
+      doc.setFillColor(245, 245, 245);
+      doc.rect(col1X - 2, yPosition - 5, 170, rowHeight, 'F');
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.text(label, col1X, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value, col2X, yPosition);
+
+    yPosition += rowHeight;
   });
 
-  yPosition+=6;
+  yPosition += 6;
 
   // -------------------------
-  // CHILD SAMPLES
+  // CHILD SAMPLES TABLE
   // -------------------------
-  doc.setFont('helvetica','bold');
-  doc.text('REGISTERED SAMPLES',14,yPosition);
-  doc.setFont('helvetica','normal');
-  yPosition+=8;
+  doc.setFont('helvetica', 'bold');
+  doc.text('REGISTERED SAMPLES', 14, yPosition);
+  yPosition += 8;
 
-  if(sample.samples && sample.samples.length > 0){
+  if (sample.samples && sample.samples.length > 0) {
+    sample.samples.forEach((child, index) => {
 
-    sample.samples.forEach((child,index)=>{
-
-      if(yPosition>260){
+      if (yPosition > 260) {
         doc.addPage();
         yPosition = 20;
       }
 
-      doc.setFont('helvetica','bold');
-      doc.text(`Sample ${index+1} : ${child.sampleId}`,16,yPosition);
-      doc.setFont('helvetica','normal');
-      yPosition+=6;
+      // Sample Header
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Sample ${index + 1} : ${child.sampleId}`, 16, yPosition);
+      doc.setFont('helvetica', 'normal');
+      yPosition += 6;
 
-      const details = [
-        `Test Method: ${child.testMethod || '-'}`,
-        `Unit Number: ${child.unitNumber || '-'}`,
-        `Analysed By: ${child.analysedBy || '-'}`,
-        `Completed Date: ${child.completedDate || '-'}`,
-        `Completed Time: ${child.completedTime || '-'}`
+      // Sample Details Table
+      const childDetails = [
+        ["Test Method", child.testMethod || '-'],
+        ["Unit Number", child.unitNumber || '-'],
       ];
 
-      details.forEach(d=>{
-        doc.text(d,18,yPosition);
-        yPosition+=5;
+      // header row
+      doc.setFillColor(39, 174, 96);
+      doc.setTextColor(255, 255, 255);
+      doc.rect(18, yPosition - 5, 150, rowHeight, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.text('Field', 18, yPosition);
+      doc.text('Value', 80, yPosition);
+      yPosition += rowHeight;
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+
+      childDetails.forEach(([label, value], i) => {
+        // alternate shading
+        if (i % 2 === 0) {
+          doc.setFillColor(245, 245, 245);
+          doc.rect(18, yPosition - 5, 150, rowHeight, 'F');
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 18, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.text(value, 80, yPosition);
+        yPosition += rowHeight;
       });
 
-      // results map
+      // Results Table
       const results = child.results ? Object.entries(child.results) : [];
+      doc.setFont('helvetica', 'bold');
+      doc.text("Results:", 18, yPosition);
+      yPosition += 5;
+      doc.setFont('helvetica', 'normal');
 
-      if(results.length > 0){
+      if (results.length > 0) {
+        // results header
+        doc.setFillColor(231, 76, 60);
+        doc.setTextColor(255, 255, 255);
+        doc.rect(22, yPosition - 5, 146, rowHeight, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.text('Parameter', 22, yPosition);
+        doc.text('Value', 80, yPosition);
+        yPosition += rowHeight;
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
 
-        doc.text("Results:",18,yPosition);
-        yPosition+=5;
-
-        results.forEach(([k,v])=>{
-          doc.text(`${k} : ${v}`,22,yPosition);
-          yPosition+=5;
+        results.forEach(([k, v], i) => {
+          if (i % 2 === 0) {
+            doc.setFillColor(245, 245, 245);
+            doc.rect(22, yPosition - 5, 146, rowHeight, 'F');
+          }
+          doc.setFont('helvetica', 'bold');
+          doc.text(k, 22, yPosition);
+          doc.setFont('helvetica', 'normal');
+          doc.text(v, 80, yPosition);
+          yPosition += rowHeight;
         });
 
-      }else{
-        doc.text("Results: None",18,yPosition);
-        yPosition+=5;
+      } else {
+        doc.text("None", 80, yPosition);
+        yPosition += rowHeight;
       }
 
-      yPosition+=5;
-
+      yPosition += 5;
     });
-
-  }else{
-    doc.text("No samples available",16,yPosition);
+  } else {
+    doc.text("No samples available", 16, yPosition);
   }
 
   // -------------------------
   // FOOTER
   // -------------------------
   const currentDate = new Date().toLocaleDateString();
-
   doc.setFontSize(8);
-  doc.setTextColor(128,128,128);
+  doc.setTextColor(128, 128, 128);
 
-  doc.text(`Generated on: ${currentDate}`,14,285);
-  doc.text(`GatePass ID: ${sample._id}`,105,285,{align:"center"});
-  doc.text("Haycarb PLC - Laboratory Division",196,285,{align:"right"});
+  doc.text(`Generated on: ${currentDate}`, 14, 285);
+  doc.text(`GatePass ID: ${sample._id}`, 105, 285, { align: "center" });
+  doc.text("Haycarb PLC - Laboratory Division", 196, 285, { align: "right" });
 
   const fileName = `Sample_Report_${sample.sampleRefNo || sample._id}.pdf`;
-
   doc.save(fileName);
 };
-
-
 
 
 
