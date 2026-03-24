@@ -1,24 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Beaker, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 
-// Import your images
+// Assets
 import madampeImage from '../../assets/hey.jpg';
 import colomboImage from '../../assets/colombo.webp';
 import badalgamaImage from '../../assets/madampe.webp';
 
-function BranchSelection() {
+const BranchSelection = () => {
   const [loadingBranch, setLoadingBranch] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [notification, setNotification] = useState("");
-  const timerRef = useRef(); // For clearing redirect timeout
+  const timerRef = useRef();
 
-  // Reset state on initial mount
-  useEffect(() => {
-    setLoadingBranch(null);
-    setSelectedBranch(null);
-    setNotification("");
-  }, []);
-
-  // Reset state when page comes back from bfcache (Vercel / browser back)
   useEffect(() => {
     const handlePageShow = (event) => {
       if (event.persisted) {
@@ -27,171 +21,174 @@ function BranchSelection() {
         setNotification("");
       }
     };
-
     window.addEventListener('pageshow', handlePageShow);
-    return () => {
-      window.removeEventListener('pageshow', handlePageShow);
-    };
+    return () => window.removeEventListener('pageshow', handlePageShow);
   }, []);
 
-  const handleBranchSelect = (branch) => {
-    setLoadingBranch(branch);
-    setSelectedBranch(branch);
-    setNotification(`Processing your selection for ${branch.toUpperCase()}...`);
+  const handleBranchSelect = (branchId) => {
+    setLoadingBranch(branchId);
+    setSelectedBranch(branchId);
+    setNotification(`Initializing session for ${branchId}...`);
 
-    // Simulate API call or processing
     timerRef.current = setTimeout(() => {
-      setNotification("Redirecting...");
+      setNotification("Secure redirecting...");
       window.location.href = '/sign';
-    }, 2500);
+    }, 2200);
   };
-
-  // Notification fade-out effect
-  useEffect(() => {
-    if (notification) {
-      const fadeTimer = setTimeout(() => setNotification(""), 3000);
-      return () => clearTimeout(fadeTimer);
-    }
-  }, [notification]);
-
-  // Clear any pending timers on unmount
-  useEffect(() => {
-    return () => clearTimeout(timerRef.current);
-  }, []);
 
   const branches = [
     {
       id: 'madampe',
       name: 'Madampe Lab',
-      description: 'Modern banking services with personalized customer care in the heart of Madampe.',
-      src: madampeImage,
+      location: 'Main Street, Madampe',
+      description: 'Advanced diagnostic facility specializing in rapid molecular testing and clinical pathology.',
+      image: madampeImage,
     },
     {
       id: 'colombo',
-      name: 'Colombo Lab',
-      description: 'Our flagship branch offering comprehensive financial solutions in the capital city.',
-      src: colomboImage,
+      name: 'Colombo Central',
+      location: 'Union Place, Colombo 02',
+      description: 'Our flagship high-capacity laboratory equipped with state-of-the-art robotic processing.',
+      image: colomboImage,
     },
     {
       id: 'badalgama',
       name: 'Badalgama Lab',
-      description: 'Community-focused banking with friendly service in the Badalgama area.',
-      src: badalgamaImage,
+      location: 'Negombo Rd, Badalgama',
+      description: 'Community-integrated testing center focused on outpatient care and wellness screenings.',
+      image: badalgamaImage,
     }
   ];
 
   return (
-    <div className="branch-container">
-      {notification && <div className="custom-notification">{notification}</div>}
-
-      <div className="header">
-        <h1>Select Your Laboratory</h1>
-        <p>Choose your preferred branch location to continue</p>
-
-        {/* Live Location Button */}
-        <a 
-          href="/location" 
-          style={{
-            display: 'inline-block',
-            marginTop: '20px',
-            padding: '10px 22px',
-            background: '#e72b2bff',
-            color: 'white',
-            borderRadius: '8px',
-            textDecoration: 'none',
-            fontWeight: '600',
-            transition: 'all 0.3s ease',
-            fontSize: '1rem'
-          }}
-          onMouseOver={e => e.currentTarget.style.background = '#004d40'}
-          onMouseOut={e => e.currentTarget.style.background = '#e72b2bff'}
-        >
-          View Live Sample Locations
-        </a>
-      </div>
-
-      <div className="branches-grid">
-        {branches.map((branch) => (
-          <div 
-            key={branch.id} 
-            className={`branch-card ${branch.id} ${selectedBranch === branch.id ? 'pulse' : ''}`}
+    <div className="min-h-screen bg-[#fcfdfe] font-sans text-slate-800 selection:bg-blue-100">
+      
+      {/* Modern Toast Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -20, x: '-50%' }}
+            className="fixed top-8 left-1/2 z-50 flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-full shadow-2xl backdrop-blur-md bg-opacity-90 border border-slate-700/50"
           >
-            <div className="image-container">
-              {branch.src ? (
-                <img 
-                  src={branch.src} 
-                  alt={branch.name}
-                  className="branch-image"
-                />
-              ) : (
-                <div className="image-placeholder">{branch.icon}</div>
-              )}
-            </div>
-            
-            <div className="branch-content">
-              <h3 className="branch-name">{branch.name}</h3>
-              <p className="branch-description">{branch.description}</p>
+            <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+            <span className="text-sm font-medium tracking-wide">{notification}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-              <button
-                className="select-btn"
-                onClick={() => handleBranchSelect(branch.id)}
-                disabled={loadingBranch && loadingBranch !== branch.id}
-              >
-                {loadingBranch === branch.id ? (
-                  <div className="spinner-container">
-                    <div className="spinner"></div>
-                    <span className="loading-text">Processing...</span>
-                  </div>
-                ) : (
-                  'Select Branch'
-                )}
-              </button>
-            </div>
+      <main className="max-w-7xl mx-auto px-6 py-16 flex flex-col items-center">
+        
+        {/* Header Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-16 space-y-4"
+        >
+          <span className="text-blue-600 font-bold text-xs uppercase tracking-[0.2em]">HayCarb Network</span>
+          <h1 className="text-4xl md:text-5xl font-light text-slate-900 tracking-tight">
+            Select <span className="font-semibold text-blue-600">Laboratory</span>
+          </h1>
+          <p className="text-slate-500 max-w-md mx-auto text-lg">
+            Please choose a facility to Lboratory with your digital credential to proceed.
+          </p>
+          
+          <div className="pt-4">
+            <a 
+              href="/location" 
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-50 text-rose-600 rounded-full text-sm font-semibold hover:bg-rose-100 transition-colors border border-rose-100"
+            >
+              <MapPin className="w-4 h-4" />
+              View Live Sample Locations
+            </a>
           </div>
-        ))}
-      </div>
+        </motion.div>
 
-      {/* Styles remain the same */}
-      <style>{`
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .branch-container { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); position: relative; }
-        .custom-notification { position: fixed; top: 20px; right: 20px; background: #2c3e50; color: #fff; padding: 14px 26px; border-radius: 12px; font-weight: 500; box-shadow: 0 5px 20px rgba(0,0,0,0.25); animation: slideIn 0.4s ease forwards, fadeOut 3s ease forwards 0.5s; z-index: 100; }
-        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
-        .header { text-align: center; margin-bottom: 60px; }
-        .header h1 { font-size: 2.8rem; font-weight: 300; color: #2c3e50; margin-bottom: 15px; letter-spacing: -0.5px; }
-        .header p { font-size: 1.1rem; color: #6c757d; font-weight: 400; }
-        .branches-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; width: 100%; max-width: 1100px; margin: 0 auto; }
-        .branch-card { background: white; border-radius: 16px; padding: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s; border: 1px solid #e9ecef; overflow: hidden; position: relative; cursor: pointer; }
-        .branch-card:hover { transform: translateY(-12px); box-shadow: 0 12px 45px rgba(0,0,0,0.15); }
-        .branch-card.pulse { animation: pulse 2s ease-in-out infinite; }
-        .branch-image { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #e9ecef; transition: transform 0.4s ease, filter 0.4s ease; }
-        .branch-card:hover .branch-image { transform: scale(1.06) rotate(0.5deg); filter: brightness(1.05); }
-        .branch-content { padding: 30px 25px; text-align: center; animation: fadeUp 0.8s ease; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .branch-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 12px; color: #2c3e50; letter-spacing: 0.5px; }
-        .branch-description { color: #6c757d; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; }
-        .select-btn { width: 100%; padding: 14px 24px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.4s ease; text-transform: uppercase; letter-spacing: 0.5px; position: relative; overflow: hidden; }
-        .branch-card.madampe .select-btn { background: white; color: #2c3e50; border: 2px solid #e9ecef; }
-        .branch-card.madampe .select-btn:hover:not(:disabled) { background: #f8f9fa; border-color: #8dc63f; color: #8dc63f; }
-        .branch-card.colombo .select-btn { background: #8dc63f; color: white; border: 2px solid #8dc63f; }
-        .branch-card.colombo .select-btn:hover:not(:disabled) { background: #7cb32e; border-color: #7cb32e; }
-        .branch-card.badalgama .select-btn { background: black; color: white; border: 2px solid black; }
-        .branch-card.badalgama .select-btn:hover:not(:disabled) { background: #333; border-color: #333; }
-        .select-btn:disabled { cursor: not-allowed; opacity: 0.7; }
-        .spinner-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .spinner { width: 22px; height: 22px; border: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        .branch-card.madampe .spinner { border-top: 3px solid #8dc63f; }
-        .branch-card.colombo .spinner, .branch-card.badalgama .spinner { border-top: 3px solid white; }
-        .loading-text { font-weight: 500; font-size: 0.95rem; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
-        @media (max-width: 768px) { .branches-grid { grid-template-columns: 1fr; max-width: 400px; } .branch-image { height: 180px; } }
-        @media (max-width: 480px) { .branch-image { height: 160px; } }
-      `}</style>
+        {/* Branches Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+          {branches.map((branch, index) => (
+            <motion.div
+              key={branch.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -8 }}
+              className={`relative group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all duration-500 overflow-hidden ${
+                selectedBranch === branch.id ? 'ring-2 ring-blue-500' : ''
+              }`}
+            >
+              {/* Image Area */}
+              <div className="h-48 overflow-hidden relative">
+                <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors duration-500 z-10" />
+                <img 
+                  src={branch.image} 
+                  alt={branch.name} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute top-4 left-4 z-20">
+                  <div className="bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <Beaker className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Certified Lab</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Area */}
+              <div className="p-8">
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold text-slate-800 mb-1">{branch.name}</h3>
+                  <div className="flex items-center gap-1 text-slate-400 text-xs italic">
+                    <MapPin className="w-3 h-3" />
+                    {branch.location}
+                  </div>
+                </div>
+                
+                <p className="text-slate-500 text-sm leading-relaxed mb-8 line-clamp-3">
+                  {branch.description}
+                </p>
+
+                <button
+                  onClick={() => handleBranchSelect(branch.id)}
+                  disabled={!!loadingBranch}
+                  className={`w-full py-4 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2 ${
+                    loadingBranch === branch.id
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'bg-slate-900 text-white hover:bg-blue-600 shadow-lg shadow-slate-200 hover:shadow-blue-200'
+                  }`}
+                >
+                  {loadingBranch === branch.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      SECURE CONNECTING...
+                    </>
+                  ) : (
+                    <>
+                      SELECT THIS BRANCH
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Selection Indicator */}
+              {selectedBranch === branch.id && (
+                <motion.div 
+                  layoutId="activeGlow"
+                  className="absolute inset-0 border-2 border-blue-500 rounded-3xl pointer-events-none"
+                />
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Footer Info */}
+        <p className="mt-16 text-slate-400 text-xs font-medium tracking-widest uppercase">
+          HayCarb  Systems &bull; Secure Laboratory Access
+        </p>
+      </main>
     </div>
   );
-}
+};
 
 export default BranchSelection;
