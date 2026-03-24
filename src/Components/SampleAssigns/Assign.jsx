@@ -75,208 +75,241 @@ export default function ReferenceForm() {
   };
 
   return (
-    <>
-      <style>{`
-        * { box-sizing:border-box; margin:0; padding:0; font-family: 'Poppins', sans-serif; }
-        body { background: #f8fafc; min-height:100vh; color:#1f2937; }
+    <div className="app-container">
+      {/* Background Decor */}
+      <div className="bg-blur-circle-1"></div>
+      <div className="bg-blur-circle-2"></div>
 
-        .container { max-width: 900px; margin: 0 auto; padding: 50px 20px; display:flex; flex-direction:column; gap:30px; }
-
-        /* Page loader */
-        .page-loader { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(248,250,252,0.95);
-          display:flex; align-items:center; justify-content:center; z-index:2000; }
-        .page-loader .spinner { width:50px; height:50px; border:5px solid rgba(59,130,246,0.2); border-top-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Card */
-        .card {
-          background: #fff;
-          border-radius: 16px;
-          padding: 35px 25px;
-          box-shadow: 0 8px 28px rgba(0,0,0,0.08);
-          position: relative;
-          overflow: hidden;
-          transition: all 0.4s ease;
-        }
-        .card:hover { transform: translateY(-4px); box-shadow:0 15px 40px rgba(59,130,246,0.15); }
-
-        .header { margin-bottom: 25px; }
-        .title { font-size:28px; font-weight:700; color:#1e3a8a; margin-bottom:5px; }
-        .subtitle { font-size:14px; color:#475569; }
-
-        /* Form */
-        .form-group { margin-bottom:20px; display:flex; flex-direction:column; }
-        .label { font-weight:600; color:#1e293b; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
-        .note-badge { font-size:11px; font-weight:600; background:#3b82f6; color:#fff; padding:2px 6px; border-radius:10px; }
-        .input { padding:12px 16px; border-radius:10px; border:1.5px solid #cbd5e1; outline:none; transition: all 0.3s; font-size:14px; }
-        .input:focus { border-color:#3b82f6; box-shadow:0 0 12px rgba(59,130,246,0.2); }
-
-        /* File input */
-        .file-input-wrapper { position:relative; }
-        .file-input-label {
-          display:flex; align-items:center; justify-content:center; padding:18px; border:2px dashed #3b82f6; border-radius:10px;
-          background:#f1f5f9; cursor:pointer; font-weight:600; transition:all 0.3s; font-size:13px;
-        }
-        .file-input-label:hover { background:#e0f2fe; border-color:#2563eb; }
-        .file-input { position:absolute; opacity:0; cursor:pointer; }
-        .file-name { margin-top:8px; font-size:13px; color:#1e40af; font-weight:600; }
-
-        /* Button */
-        .submit-btn {
-          width:100%; padding:14px; background: linear-gradient(135deg,#3b82f6,#60a5fa); color:#fff;
-          border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer;
-          display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.3s;
-        }
-        .submit-btn:disabled { opacity:0.7; cursor:not-allowed; }
-        .submit-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 25px rgba(59,130,246,0.25); }
-
-        .loader { width:16px; height:16px; border:3px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; }
-
-        /* Reference list */
-        .section-title { font-size:20px; font-weight:700; color:#1e3a8a; margin-bottom:15px; display:flex; align-items:center; gap:8px; }
-        .reference-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
-
-        .reference-item {
-          background:#f1f5f9; padding:14px 18px; border-radius:14px; display:flex; justify-content:space-between; align-items:center;
-          transition:all 0.3s; position:relative; overflow:hidden; border-left:4px solid #3b82f6;
-        }
-        .reference-item:hover { transform:translateX(2px); background:#fff; box-shadow:0 8px 22px rgba(59,130,246,0.12); }
-        .reference-number { font-weight:600; color:#1e293b; }
-        .download-btn { padding:6px 14px; background: linear-gradient(135deg,#3b82f6,#60a5fa); color:#fff; border:none; border-radius:10px; cursor:pointer; transition:all 0.3s; font-size:13px; font-weight:600; }
-        .download-btn:hover { transform:scale(1.05); box-shadow:0 5px 20px rgba(59,130,246,0.2); }
-
-        /* Skeleton loader */
-        .skeleton-loader { background: linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%); background-size:200% 100%;
-          animation: shimmer 1.5s infinite; border-radius:14px; height:60px; }
-        @keyframes shimmer { 0%{ background-position:200% 0; } 100%{ background-position:-200% 0; } }
-
-        /* Notifications */
-        .notification { position:fixed; top:20px; right:20px; padding:14px 22px; border-radius:14px; font-weight:600; font-size:14px;
-          box-shadow:0 10px 30px rgba(0,0,0,0.12); display:flex; align-items:center; gap:10px; border:2px solid; animation:slideIn 0.4s ease-out; z-index:1000;
-        }
-        @keyframes slideIn { from{opacity:0; transform:translateX(400px);} to{opacity:1; transform:translateX(0);} }
-        .notification.success { background: #dbeafe; color:#1e40af; border-color:#3b82f6; }
-        .notification.error { background: #fee2e2; color:#991b1b; border-color:#ef4444; }
-        .notification.info { background:#e0f2fe; color:#1e40af; border-color:#3b82f6; }
-        .notification-icon { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; }
-        .progress-bar { position:absolute; bottom:0; left:0; height:3px; background:currentColor; opacity:0.5; animation: shrink 4s linear; }
-        @keyframes shrink { from{ width:100%; } to{ width:0%; } }
-      `}</style>
-
-      {pageLoading && (
-        <div className="page-loader">
-          <div className="spinner"></div>
+      <nav className="top-nav">
+        <div className="nav-inner">
+          <span className="logo">HAYCARB <span>DOCS</span></span>
+          <button className="back-link" onClick={() => window.history.back()}>
+            ← Back Home
+          </button>
         </div>
-      )}
+      </nav>
 
-      <div className="container">
-        {notification && (
-          <div className={`notification ${notification.type}`}>
-            <div className="notification-icon">
-              {notification.type === "success" && "✓"}
-              {notification.type === "error" && "✕"}
-              {notification.type === "info" && "i"}
+      <main className="content-wrapper">
+        <header className="page-header">
+          <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            Reference Management
+          </motion.h1>
+          <p>Secure document handling and sample reference tracking system</p>
+        </header>
+
+        {/* Notifications */}
+        <AnimatePresence>
+          {notification && (
+            <motion.div 
+              className={`alert-banner ${notification.type}`}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              {notification.message}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="main-grid">
+          {/* Action Card */}
+          <motion.section 
+            className="action-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="card-head">
+              <h2>New Assignment</h2>
+              <span>Fill in details to link reference</span>
             </div>
-            <span>{notification.message}</span>
-            <div className="progress-bar"></div>
-          </div>
-        )}
 
-        <motion.div className="card" initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }}>
-          <div className="header">
-            <h1 className="title">Assign Samples</h1>
-            <p className="subtitle">Submit your reference documents securely and efficiently</p>
-          </div>
+            <form onSubmit={handleSubmit} className="hub-form">
+              <div className="input-box">
+                <label>Reference Identity</label>
+                <input
+                  type="text"
+                  placeholder="Enter Number"
+                  value={refNumber}
+                  onChange={(e) => setRefNumber(e.target.value)}
+                />
+              </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="label">
-                Reference Number <span className="note-badge">Required</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Enter reference number"
-                value={refNumber}
-                onChange={(e) => setRefNumber(e.target.value)}
-                className="input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="label">
-                Attach Document <span className="note-badge">Optional</span>
-              </label>
-              <div className="file-input-wrapper">
-                <label className="file-input-label">
-                  <span>Choose file or drag here</span>
+              <div className="input-box">
+                <label>Documentation</label>
+                <div className="upload-zone">
                   <input
                     type="file"
+                    id="file-input"
                     onChange={(e) => setFile(e.target.files[0])}
-                    className="file-input"
+                    className="hidden"
                   />
-                </label>
+                  <label htmlFor="file-input" className="file-trigger">
+                    {file ? "Replace File" : "Choose Document"}
+                  </label>
+                  {file && <span className="file-name">📎 {file.name}</span>}
+                </div>
               </div>
-              {file && <div className="file-name">{file.name}</div>}
+
+              <button type="submit" className="submit-action" disabled={loading}>
+                {loading ? <span className="mini-loader"></span> : "Save Reference"}
+              </button>
+            </form>
+          </motion.section>
+
+          {/* List Card */}
+          <motion.section 
+            className="list-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="card-head">
+              <h2>Recent Submissions</h2>
+              <div className="stats-tag">{references.length} Items</div>
             </div>
 
-            <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? (
-                <>
-                  <span className="loader"></span>
-                  Processing
-                </>
+            <div className="table-container">
+              {fetchingReferences ? (
+                <div className="loading-state">Syncing database...</div>
               ) : (
-                "Submit Reference"
+                <div className="ref-list">
+                  <AnimatePresence>
+                    {references.length === 0 ? (
+                      <div className="empty-msg">No active references found.</div>
+                    ) : (
+                      references.map((ref) => (
+                        <motion.div key={ref._id} className="ref-row" layout>
+                          <div className="ref-info">
+                            <span className="ref-id">{ref.refNumber}</span>
+                            <span className="ref-status">Verified</span>
+                          </div>
+                          {ref.fileData && (
+                            <button
+                              onClick={() => downloadFile(ref.fileData, ref.fileName)}
+                              className="btn-download"
+                            >
+                              Download
+                            </button>
+                          )}
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </div>
               )}
-            </button>
-          </form>
-        </motion.div>
-
-        <div className="card">
-          <h2 className="section-title">
-            Submitted Samples & References <span className="note-badge">Assign Samples</span>
-          </h2>
-
-          {fetchingReferences ? (
-            <>
-              <div className="skeleton-loader"></div>
-              <div className="skeleton-loader"></div>
-              <div className="skeleton-loader"></div>
-            </>
-          ) : (
-            <ul className="reference-list">
-              <AnimatePresence>
-                {references.length === 0 ? (
-                  <motion.li initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
-                    No references submitted yet
-                  </motion.li>
-                ) : (
-                  references.map((ref) => (
-                    <motion.li
-                      key={ref._id}
-                      className="reference-item"
-                      initial={{ opacity:0, y:10 }}
-                      animate={{ opacity:1, y:0 }}
-                      exit={{ opacity:0 }}
-                      transition={{ duration:0.3 }}
-                    >
-                      <span className="reference-number">{ref.refNumber}</span>
-                      {ref.fileData && (
-                        <button
-                          onClick={() => downloadFile(ref.fileData, ref.fileName)}
-                          className="download-btn"
-                        >
-                          Download
-                        </button>
-                      )}
-                    </motion.li>
-                  ))
-                )}
-              </AnimatePresence>
-            </ul>
-          )}
+            </div>
+          </motion.section>
         </div>
-      </div>
-    </>
+      </main>
+
+      <style>{`
+        :root {
+          --primary: #e74e1c;
+          --bg: #fdfdfd;
+          --text: #1e293b;
+          --text-muted: #64748b;
+          --glass: rgba(255, 255, 255, 0.8);
+          --border: #e2e8f0;
+        }
+
+        .app-container { 
+          min-height: 100vh; 
+          background: #f8fafc; 
+          color: var(--text);
+          font-family: 'Inter', -apple-system, sans-serif;
+          position: relative;
+          overflow-x: hidden;
+        }
+
+        /* Decorative circles */
+        .bg-blur-circle-1 { position: absolute; top: -100px; right: -50px; width: 300px; height: 300px; background: #e0e7ff; filter: blur(100px); z-index: 0; }
+        .bg-blur-circle-2 { position: absolute; bottom: -50px; left: -50px; width: 250px; height: 250px; background: #fef3c7; filter: blur(80px); z-index: 0; }
+
+        .top-nav { height: 70px; border-bottom: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
+        .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 2rem; }
+        .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; }
+        .logo span { color: var(--primary); }
+        .back-link { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border: none; background: none; }
+        .back-link:hover { color: var(--primary); }
+
+        .content-wrapper { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; position: relative; z-index: 10; }
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; }
+        .page-header p { color: var(--text-muted); }
+
+        .alert-banner { padding: 1rem; border-radius: 12px; margin-bottom: 2rem; font-weight: 600; text-align: center; }
+        .alert-banner.success { background: #ecfdf5; color: #065f46; border: 1px solid #10b981; }
+        .alert-banner.error { background: #fef2f2; color: #991b1b; border: 1px solid #ef4444; }
+
+        .main-grid { display: grid; grid-template-columns: 400px 1fr; gap: 2.5rem; }
+
+        .action-card, .list-card { 
+          background: white; 
+          border-radius: 20px; 
+          padding: 2rem; 
+          border: 1px solid var(--border); 
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04);
+        }
+
+        .card-head { margin-bottom: 2rem; }
+        .card-head h2 { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
+        .card-head span { font-size: 0.85rem; color: var(--text-muted); }
+
+        .hub-form .input-box { margin-bottom: 1.5rem; }
+        .hub-form label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .hub-form input[type="text"] { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); font-size: 1rem; transition: 0.2s; }
+        .hub-form input[type="text"]:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+
+        .upload-zone { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 1.5rem; text-align: center; }
+        .file-trigger { color: var(--primary); font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+        .file-name { display: block; margin-top: 10px; font-size: 0.8rem; font-weight: 600; color: #10b981; }
+        .hidden { display: none; }
+
+        .submit-action { 
+          width: 100%; 
+          padding: 16px; 
+          background: var(--primary); 
+          color: white; 
+          border: none; 
+          border-radius: 12px; 
+          font-weight: 700; 
+          cursor: pointer; 
+          transition: transform 0.2s, background 0.2s;
+        }
+        .submit-action:hover { background: #4338ca; transform: translateY(-2px); }
+        .submit-action:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .list-card { height: fit-content; max-height: 600px; display: flex; flex-direction: column; }
+        .stats-tag { background: #e0e7ff; color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .table-container { flex: 1; overflow-y: auto; }
+
+        .ref-row { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          padding: 1.25rem 0; 
+          border-bottom: 1px solid #f1f5f9; 
+        }
+        .ref-id { display: block; font-weight: 700; font-size: 1rem; color: #334155; }
+        .ref-status { font-size: 0.75rem; color: #10b981; font-weight: 600; text-transform: uppercase; }
+        
+        .btn-download { 
+          padding: 8px 16px; 
+          border-radius: 8px; 
+          border: 1px solid var(--border); 
+          background: white; 
+          font-weight: 600; 
+          font-size: 0.85rem; 
+          cursor: pointer; 
+          transition: 0.2s;
+        }
+        .btn-download:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+        .mini-loader { width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+      `}</style>
+    </div>
   );
 }

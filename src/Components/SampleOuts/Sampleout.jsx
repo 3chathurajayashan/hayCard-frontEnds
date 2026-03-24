@@ -20,7 +20,6 @@ export default function ReferenceFinalize() {
     try {
       setLoading(true);
       const res = await axios.get(`${BACKEND_URL}/api/reference`);
-      // Add a small delay for smooth skeleton effect
       setTimeout(() => {
         setReferences(res.data);
         setLoading(false);
@@ -36,13 +35,12 @@ export default function ReferenceFinalize() {
     try {
       setLoading(true);
       const res = await axios.post(`${BACKEND_URL}/api/reference/sample-out`, { id });
-      setMessage(`Reference ${res.data.reference.refNumber} finalized successfully!`);
+      setMessage(`Reference ${res.data.reference.refNumber} successfully finalized.`);
       setMessageType("success");
       setShowMessage(true);
       fetchReferences();
     } catch (error) {
-      console.error("Error finalizing sample:", error);
-      setMessage("Failed to finalize reference. Please try again.");
+      setMessage("Finalization failed. Please verify connection.");
       setMessageType("error");
       setShowMessage(true);
       setLoading(false);
@@ -63,166 +61,238 @@ export default function ReferenceFinalize() {
     datasets: [
       {
         data: [pendingCount, completedCount],
-        backgroundColor: ["#0984e3", "#00b894"],
-        borderColor: ["#0984e3", "#00b894"],
-        borderWidth: 2,
-        hoverOffset: 10,
+        backgroundColor: ["#020202", "#fc1f1f"],
+        hoverBackgroundColor: ["#000000", "#df6d0f"],
+        borderWidth: 0,
+        cutout: "80%",
       },
     ],
   };
 
-  const chartOptions = {
-    cutout: "70%",
-    plugins: {
-      legend: { position: "bottom", labels: { color: "#2d3436", font: { weight: 600 } } },
-      tooltip: { enabled: true },
-    },
-    animation: { duration: 800, easing: "easeInOutQuad" },
-  };
-
   return (
-    <div style={styles.container}>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <h2 style={styles.heading}>Finalize References</h2>
-        <p style={styles.subtitle}>Track and manage your sample processing</p>
-      </motion.div>
+    <div className="op-container">
+      {/* Top Header Section */}
+      <header className="op-header">
+        <div className="header-text">
+          <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            Dispatch Terminal
+          </motion.h1>
+          <p>Reference Finalization & Output Management</p>
+        </div>
+        <div className="header-stats">
+          <div className="stat-pill">
+            <span className="label">Total</span>
+            <span className="value">{references.length}</span>
+          </div>
+          <div className="stat-pill success">
+            <span className="label">Done</span>
+            <span className="value">{completedCount}</span>
+          </div>
+        </div>
+      </header>
 
-      {/* Charts */}
-      <motion.div
-        style={styles.chartWrapper}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Doughnut data={chartData} options={chartOptions} />
-      </motion.div>
+      <div className="op-grid">
+        {/* Analytics Side-Card */}
+        <aside className="analytics-card">
+          <h3>Progress Overview</h3>
+          <div className="chart-box">
+            <Doughnut 
+              data={chartData} 
+              options={{ 
+                plugins: { legend: { display: false } },
+                maintainAspectRatio: true
+              }} 
+            />
+            <div className="chart-center">
+              <span className="pct">
+                {references.length > 0 ? Math.round((completedCount/references.length)*100) : 0}%
+              </span>
+              <span className="sub">Complete</span>
+            </div>
+          </div>
+          <div className="legend">
+            <div className="leg-item"><span className="dot p"></span> Pending ({pendingCount})</div>
+            <div className="leg-item"><span className="dot c"></span> Finalized ({completedCount})</div>
+          </div>
+        </aside>
 
-      {/* Notification */}
+        {/* Action List */}
+        <main className="records-area">
+          <div className="list-controls">
+            <h3>Active Queue</h3>
+            {loading && <div className="pulse-loader">Syncing...</div>}
+          </div>
+
+          <div className="scroll-feed">
+            {loading && references.length === 0 ? (
+              [1, 2, 3].map(i => <div key={i} className="skeleton-row" />)
+            ) : (
+              references.map((ref, index) => (
+                <motion.div
+                  key={ref._id}
+                  className={`record-card ${ref.sampleOut ? "is-final" : ""}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <div className="record-main">
+                    <div className="ref-tag">#{ref.refNumber}</div>
+                    <div className="ref-meta">
+                      Created {new Date(ref.createdAt || Date.now()).toLocaleDateString()}
+                    </div>
+                  </div>
+
+                  <div className="record-action">
+                    <label className="finalize-toggle">
+                      <input
+                        type="checkbox"
+                        checked={ref.sampleOut}
+                        disabled={ref.sampleOut || loading}
+                        onChange={(e) => handleFinalize(ref._id, e.target.checked)}
+                      />
+                      <div className="toggle-ui">
+                        {ref.sampleOut ? "FINALIZED" : "MARK AS OUT"}
+                      </div>
+                    </label>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* Global Notification */}
       <AnimatePresence>
         {showMessage && (
           <motion.div
-            style={{
-              ...styles.toast,
-              background: messageType === "success"
-                ? "linear-gradient(135deg, #00b894, #00a085)"
-                : "linear-gradient(135deg, #ff7675, #d63031)"
-            }}
-            initial={{ opacity: 0, x: 300, scale: 0.8 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 300, scale: 0.8 }}
-            transition={{ type: "spring", damping: 20 }}
+            className={`op-toast ${messageType}`}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
           >
-            <div style={styles.toastContent}>
-              <span style={styles.toastIcon}>{messageType === "success" ? "✓" : "⚠"}</span>
-              {message}
-            </div>
-            <button onClick={() => setShowMessage(false)} style={styles.toastClose}>×</button>
+            <span className="t-icon">{messageType === "success" ? "✓" : "!"}</span>
+            {message}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Reference List */}
-      <div style={styles.list}>
-        {loading
-          ? Array.from({ length: 4 }).map((_, i) => (
-              <motion.div
-                key={i}
-                style={styles.skeletonCard}
-                initial={{ opacity: 0.5 }}
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.2, repeat: Infinity }}
-              />
-            ))
-          : references.map((ref, index) => (
-              <motion.div
-                key={ref._id}
-                style={{
-                  ...styles.card,
-                  borderLeft: ref.sampleOut ? "6px solid #00b894" : "6px solid #0984e3",
-                }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.03, boxShadow: "0 10px 28px rgba(0,0,0,0.12)" }}
-              >
-                <div style={styles.cardContent}>
-                  <div style={styles.info}>
-                    <div style={styles.refHeader}>
-                      <p style={styles.refNo}>Reference #{ref.refNumber}</p>
-                      <motion.div
-                        style={{
-                          ...styles.statusBadge,
-                          background: ref.sampleOut ? "rgba(0, 184, 148, 0.15)" : "rgba(9, 132, 227, 0.15)"
-                        }}
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <span style={{
-                          ...styles.statusDot,
-                          background: ref.sampleOut ? "#00b894" : "#0984e3"
-                        }} />
-                        <span style={{
-                          ...styles.statusText,
-                          color: ref.sampleOut ? "#00b894" : "#0984e3"
-                        }}>
-                          {ref.sampleOut ? "Completed" : "Pending"}
-                        </span>
-                      </motion.div>
-                    </div>
-                    <p style={styles.date}>Created: {new Date(ref.createdAt || Date.now()).toLocaleDateString()}</p>
-                  </div>
+      <style>{`
+        .op-container {
+          max-width: 1100px;
+          margin: 2rem auto;
+          padding: 0 1.5rem;
+          font-family: 'Inter', sans-serif;
+          color: #1e293b;
+        }
 
-                  <motion.label style={styles.checkboxContainer} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <input
-                      type="checkbox"
-                      checked={ref.sampleOut}
-                      disabled={ref.sampleOut || loading}
-                      onChange={(e) => handleFinalize(ref._id, e.target.checked)}
-                      style={styles.checkbox}
-                    />
-                    <motion.div
-                      style={styles.customCheckbox}
-                      animate={{
-                        background: ref.sampleOut ? "#00b894" : "#fff",
-                        borderColor: ref.sampleOut ? "#00b894" : "#ddd"
-                      }}
-                    >
-                      {ref.sampleOut && (
-                        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} style={styles.checkmark}>✓</motion.span>
-                      )}
-                    </motion.div>
-                    <span style={styles.checkboxLabel}>{ref.sampleOut ? "Finalized" : "Mark as Complete"}</span>
-                  </motion.label>
-                </div>
-              </motion.div>
-            ))}
-      </div>
+        .op-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2.5rem;
+          background: #fff;
+          padding: 1.5rem 2rem;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .header-text h1 { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; }
+        .header-text p { font-size: 0.875rem; color: #64748b; margin: 4px 0 0; }
+        
+        .header-stats { display: flex; gap: 12px; }
+        .stat-pill { background: #f1f5f9; padding: 8px 16px; border-radius: 10px; display: flex; flex-direction: column; align-items: flex-end; }
+        .stat-pill.success { background: #ecfdf5; color: #059669; }
+        .stat-pill .label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; opacity: 0.7; }
+        .stat-pill .value { font-size: 1.1rem; font-weight: 800; }
+
+        .op-grid { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
+
+        /* Analytics Card */
+        .analytics-card {
+          background: #fff;
+          padding: 2rem;
+          border-radius: 20px;
+          border: 1px solid #e2e8f0;
+          height: fit-content;
+          position: sticky;
+          top: 2rem;
+        }
+        .analytics-card h3 { font-size: 1rem; margin-bottom: 2rem; font-weight: 700; }
+        .chart-box { position: relative; margin-bottom: 2rem; }
+        .chart-center {
+          position: absolute; top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          text-align: center;
+          pointer-events: none;
+        }
+        .chart-center .pct { display: block; font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+        .chart-center .sub { font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 600; }
+
+        .legend { display: flex; flex-direction: column; gap: 10px; }
+        .leg-item { font-size: 0.85rem; font-weight: 500; color: #64748b; display: flex; align-items: center; gap: 8px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.p { background: #000000; }
+        .dot.c { background: #f42020; }
+
+        /* Records Area */
+        .records-area { background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; min-height: 500px; }
+        .list-controls { padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+        .list-controls h3 { font-size: 1rem; font-weight: 700; }
+        .pulse-loader { font-size: 0.75rem; color: #6366f1; font-weight: 700; }
+
+        .scroll-feed { padding: 1rem 2rem; }
+        .record-card {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.25rem 0;
+          border-bottom: 1px solid #f1f5f9;
+          transition: 0.2s;
+        }
+        .record-card.is-final { opacity: 0.6; }
+        .ref-tag { font-weight: 700; color: #0f172a; font-size: 1rem; }
+        .ref-meta { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
+
+        /* Custom Toggle UI */
+        .finalize-toggle { cursor: pointer; }
+        .finalize-toggle input { display: none; }
+        .toggle-ui {
+          background: #f1f5f9;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 0.7rem;
+          font-weight: 800;
+          color: #64748b;
+          transition: 0.2s;
+          border: 1px solid transparent;
+        }
+        .finalize-toggle:hover .toggle-ui { background: #e2e8f0; color: #0f172a; }
+        input:checked + .toggle-ui {
+          background: #ff0000;
+          color: #ffffff;
+          border-color: #e42323;
+        }
+
+        .op-toast {
+          position: fixed; bottom: 2rem; right: 2rem;
+          padding: 1rem 1.5rem; border-radius: 12px;
+          color: white; font-weight: 600; font-size: 0.9rem;
+          display: flex; align-items: center; gap: 12px;
+          box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+        }
+        .op-toast.success { background: #1e293b; }
+        .op-toast.error { background: #ef4444; }
+        .t-icon { background: rgba(255,255,255,0.2); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+
+        .skeleton-row { height: 60px; background: #f1f5f9; border-radius: 8px; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        @media (max-width: 850px) {
+          .op-grid { grid-template-columns: 1fr; }
+          .analytics-card { position: relative; top: 0; }
+        }
+      `}</style>
     </div>
   );
 }
-
-const styles = {
-  container: { maxWidth: "850px", margin: "40px auto", padding: "40px", borderRadius: "24px", background: "rgba(255,255,255,0.95)", backdropFilter: "blur(12px)", boxShadow: "0 12px 40px rgba(0,0,0,0.08)" },
-  heading: { textAlign: "center", fontSize: "2.2rem", fontWeight: 700, marginBottom: "6px", color: "#2d3436", background: "linear-gradient(135deg, #2d3436, #636e72)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
-  subtitle: { textAlign: "center", color: "#636e72", marginBottom: "30px" },
-  chartWrapper: { maxWidth: "350px", margin: "0 auto 30px" },
-  list: { display: "flex", flexDirection: "column", gap: "20px" },
-  card: { borderRadius: "16px", boxShadow: "0 6px 22px rgba(0,0,0,0.08)", overflow: "hidden", transition: "all 0.3s ease", background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)" },
-  cardContent: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px" },
-  info: { display: "flex", flexDirection: "column", gap: "6px", flex: 1 },
-  refHeader: { display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" },
-  refNo: { fontSize: "1.1rem", fontWeight: 600, color: "#2d3436", margin: 0 },
-  date: { fontSize: "0.9rem", color: "#636e72", margin: 0 },
-  statusBadge: { display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "20px" },
-  statusDot: { width: "8px", height: "8px", borderRadius: "50%" },
-  statusText: { fontSize: "0.8rem", fontWeight: 600, textTransform: "uppercase" },
-  checkboxContainer: { display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" },
-  checkbox: { display: "none" },
-  customCheckbox: { width: "20px", height: "20px", borderRadius: "6px", border: "2px solid #ddd", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" },
-  checkmark: { color: "white", fontSize: "12px", fontWeight: "bold" },
-  checkboxLabel: { fontSize: "0.9rem", fontWeight: 500, color: "#2d3436" },
-  toast: { position: "fixed", top: "30px", right: "30px", color: "white", padding: "0", borderRadius: "12px", boxShadow: "0 10px 30px rgba(0,0,0,0.2)", fontWeight: 500, zIndex: 1000, overflow: "hidden", minWidth: "300px" },
-  toastContent: { display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px" },
-  toastIcon: { fontSize: "1.2rem", fontWeight: "bold" },
-  toastClose: { background: "rgba(255,255,255,0.2)", border: "none", color: "white", fontSize: "1.5rem", cursor: "pointer", padding: "4px 12px" },
-  skeletonCard: { height: "80px", borderRadius: "16px", background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)", backgroundSize: "200% 100%" }
-};

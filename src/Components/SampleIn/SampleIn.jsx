@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Keeping your original constants
 const FRONTEND_URL = "https://hay-card-front-end.vercel.app/";
 const BACKEND_URL = "https://hay-card-back-end.vercel.app/";
 
@@ -84,271 +85,268 @@ export default function SamplePage() {
   const handleBack = () => window.history.back();
 
   return (
-    <div className="container">
-      <motion.button
-        className="back-btn"
-        onClick={handleBack}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        ← Back
-      </motion.button>
+    <div className="dashboard-wrapper">
+      {/* Sidebar Navigation (Visual Only) */}
+      <aside className="sidebar">
+        <div className="logo">HAYCARB Admin</div>
+        <nav>
+          <div className="nav-item active">Samples</div>
+          <div className="nav-item" onClick={handleBack}>← Back to Home</div>
+        </nav>
+      </aside>
 
-      <h1>Customer Sample Management</h1>
+      <main className="main-content">
+        <header className="top-bar">
+          <h1>Customer Sample Management</h1>
+          <div className="user-profile">Admin</div>
+        </header>
 
-      {/* Notification */}
-      <AnimatePresence>
-        {message.text && (
-          <motion.div
-            className={`notification ${message.type}`}
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {message.text}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Form */}
-      <motion.form
-        className="sample-form"
-        onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <input
-          type="text"
-          name="referenceNumber"
-          placeholder="Reference Number"
-          value={formData.referenceNumber}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="quantity"
-          placeholder="Quantity"
-          value={formData.quantity}
-          onChange={handleChange}
-          required
-        />
-        <select name="grade" value={formData.grade} onChange={handleChange} required>
-          {gradeOptions.map((g, i) => (
-            <option key={i} value={g}>{g}</option>
-          ))}
-        </select>
-        <input type="date" name="date" value={formData.date} onChange={handleChange} required />
-        <input type="time" name="time" value={formData.time} onChange={handleChange} required />
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? (
+        {/* Notification */}
+        <AnimatePresence>
+          {message.text && (
             <motion.div
-              className="form-loader"
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-            />
-          ) : "Add Sample"}
-        </button>
-      </motion.form>
+              className={`notification ${message.type}`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              {message.text}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Table */}
-      <motion.div
-        className="sample-table"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2>All Samples</h2>
+        <div className="grid-container">
+          {/* Form Section */}
+          <motion.div 
+            className="card form-section"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h3>Add New Sample</h3>
+            <form className="minimal-form" onSubmit={handleSubmit}>
+              <div className="input-group">
+                <label>Reference</label>
+                <input
+                  type="text"
+                  name="referenceNumber"
+                  placeholder="REF-001"
+                  value={formData.referenceNumber}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="input-group">
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  placeholder="0"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="input-group">
+                <label>Grade</label>
+                <select name="grade" value={formData.grade} onChange={handleChange} required>
+                  {gradeOptions.map((g, i) => (
+                    <option key={i} value={g}>{g}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="input-row">
+                <div className="input-group">
+                  <label>Date</label>
+                  <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+                </div>
+                <div className="input-group">
+                  <label>Time</label>
+                  <input type="time" name="time" value={formData.time} onChange={handleChange} required />
+                </div>
+              </div>
+              <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                {isSubmitting ? <div className="spinner" /> : "Register Sample"}
+              </button>
+            </form>
+          </motion.div>
 
-        {isFetching ? (
-          <div className="fetch-loader">
-            <motion.div className="dot" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 0.6 }}/>
-            <motion.div className="dot" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}/>
-            <motion.div className="dot" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }}/>
-          </div>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Quantity</th>
-                <th>Grade</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {samples.length > 0 ? (
-                samples.map((s) => (
-                  <motion.tr
-                    key={s.referenceNumber}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <td>{s.referenceNumber}</td>
-                    <td>{s.quantity}</td>
-                    <td>{s.grade}</td>
-                    <td>{s.date}</td>
-                    <td>{s.time}</td>
-                    <td>
-                      <button className="delete-btn" onClick={() => handleDelete(s.referenceNumber)}>
-                        Delete
-                      </button>
-                    </td>
-                  </motion.tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" style={{ textAlign: "center", color: "#777" }}>
-                    No samples found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
-      </motion.div>
+          {/* Table Section */}
+          <motion.div 
+            className="card table-section"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="table-header">
+              <h3>Inventory List</h3>
+              <span className="count-badge">{samples.length} Samples</span>
+            </div>
 
-      {/* Inline CSS */}
+            {isFetching ? (
+              <div className="skeleton-loader">
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line"></div>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Reference</th>
+                      <th>Quantity</th>
+                      <th>Grade</th>
+                      <th>Timestamp</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {samples.length > 0 ? (
+                      samples.map((s) => (
+                        <tr key={s.referenceNumber}>
+                          <td className="bold">{s.referenceNumber}</td>
+                          <td>{s.quantity}</td>
+                          <td><span className={`badge ${s.grade}`}>{s.grade}</span></td>
+                          <td className="dim text-small">{s.date} <br/> {s.time}</td>
+                          <td>
+                            <button className="text-delete" onClick={() => handleDelete(s.referenceNumber)}>
+                              Remove
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" className="empty-state">No samples found.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </main>
+
       <style>{`
-        .container {
-          max-width: 950px;
-          margin: auto;
-          padding: 50px 20px;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: #f4f6f8;
+        :root {
+          --bg: #f8fafc;
+          --sidebar: #0f3778;
+          --accent: #6366f1;
+          --text-main: #334155;
+          --text-dim: #64748b;
+          --border: #e2e8f0;
+          --card-bg: #ffffff;
         }
-        h1 { text-align: center; margin-bottom: 30px; color: #1f2937; font-weight: 700; }
-        .back-btn {
-          padding: 10px 18px;
-          margin-bottom: 25px;
-          border: none;
-          border-radius: 8px;
-          background: #374151;
-          color: #fff;
-          cursor: pointer;
-          font-weight: 500;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          transition: all 0.3s;
-        }
-        .back-btn:hover { background: #1f2937; }
 
-        .notification {
-          padding: 15px 22px;
-          border-radius: 10px;
-          margin-bottom: 25px;
-          font-weight: 500;
-          text-align: center;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        .dashboard-wrapper {
+          display: flex;
+          min-height: 100vh;
+          background: var(--bg);
+          font-family: 'Inter', system-ui, sans-serif;
+          color: var(--text-main);
         }
-        .notification.success { background: #d1fae5; color: #065f46; }
-        .notification.error { background: #fee2e2; color: #b91c1c; }
 
-        .sample-form {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 18px;
-          margin-bottom: 45px;
-          padding: 25px;
-          background: #ffffff;
-          border-radius: 14px;
-          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-        .sample-form input,
-        .sample-form select {
-          padding: 14px;
-          border-radius: 10px;
-          border: 1px solid #d1d5db;
-          outline: none;
-          transition: all 0.3s;
-          font-size: 15px;
-        }
-        .sample-form input:focus,
-        .sample-form select:focus {
-          border-color: #2563eb;
-          box-shadow: 0 0 10px rgba(37,99,235,0.25);
-        }
-        .sample-form button {
-          grid-column: 1 / -1;
-          padding: 14px;
-          border-radius: 10px;
-          border: none;
-          background: #2563eb;
+        /* Sidebar */
+        .sidebar {
+          width: 240px;
+          background: var(--sidebar);
           color: white;
-          font-weight: 600;
-          cursor: pointer;
-          min-height: 50px;
+          padding: 2rem 1.5rem;
           display: flex;
-          justify-content: center;
-          align-items: center;
-          font-size: 16px;
-          transition: all 0.3s;
+          flex-direction: column;
         }
-        .sample-form button:hover { background: #1d4ed8; }
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; margin-bottom: 3rem; color: #ffffff; }
+        .nav-item { 
+          padding: 0.75rem 1rem; 
+          border-radius: 8px; 
+          margin-bottom: 0.5rem; 
+          cursor: pointer; 
+          transition: 0.2s;
+          font-size: 0.9rem;
+          color: #ffffff;
+        }
+        .nav-item.active { background: #334155; color: white; }
+        .nav-item:hover { background: #334155; color: white; }
 
-        .form-loader {
-          width: 24px;
-          height: 24px;
-          border: 3px solid rgba(255,255,255,0.3);
-          border-top: 3px solid #fff;
-          border-radius: 50%;
-        }
+        /* Content */
+        .main-content { flex: 1; padding: 2rem 3rem; overflow-y: auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+        .top-bar h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+        .user-profile { font-size: 0.85rem; background: var(--border); padding: 5px 12px; border-radius: 20px; font-weight: 600; }
 
-        .sample-table h2 {
-          margin-bottom: 20px;
-          color: #1f2937;
-          font-weight: 700;
-        }
+        .grid-container { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; }
 
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          background: #ffffff;
-          border-radius: 14px;
-          overflow: hidden;
-          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-        th, td {
-          padding: 16px 20px;
-          text-align: center;
-          border-bottom: 1px solid #e5e7eb;
-          font-size: 15px;
-        }
-        th {
-          background: #f3f4f6;
-          font-weight: 600;
-          color: #374151;
-        }
-        tr:hover td { background: #f9fafb; transition: 0.2s; }
+        /* Cards */
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); padding: 1.5rem; }
+        .card h3 { font-size: 1rem; margin-bottom: 1.5rem; font-weight: 600; color: #1e293b; }
 
-        .delete-btn {
-          padding: 8px 16px;
+        /* Form Styling */
+        .input-group { margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .minimal-form input, .minimal-form select {
+          padding: 10px 12px;
           border-radius: 8px;
-          border: none;
-          background: #ef4444;
-          color: #fff;
-          cursor: pointer;
-          font-weight: 500;
-          transition: all 0.3s;
+          border: 1px solid var(--border);
+          font-size: 0.9rem;
+          background: #fdfdfd;
+          outline: none;
         }
-        .delete-btn:hover { background: #dc2626; }
+        .minimal-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-        /* Fetch loader */
-        .fetch-loader {
-          display: flex;
-          justify-content: center;
-          gap: 12px;
-          margin: 30px 0;
+        .submit-btn {
+          width: 100%;
+          padding: 12px;
+          background: var(--accent);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          margin-top: 1rem;
+          transition: opacity 0.2s;
         }
-        .fetch-loader .dot {
-          width: 12px;
-          height: 12px;
-          background: #2563eb;
-          border-radius: 50%;
+        .submit-btn:hover { opacity: 0.9; }
+
+        /* Table Styling */
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .count-badge { font-size: 0.75rem; background: #eef2ff; color: var(--accent); padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 12px; border-bottom: 2px solid var(--bg); font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); }
+        td { padding: 16px 12px; border-bottom: 1px solid var(--bg); font-size: 0.9rem; }
+        .bold { font-weight: 600; color: #0f172a; }
+        .dim { color: var(--text-dim); }
+        .text-small { font-size: 0.8rem; }
+        
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        .badge.A { background: #dcfce7; color: #166534; }
+        .badge.B { background: #fef9c3; color: #854d0e; }
+        .badge.C { background: #ffedd5; color: #9a3412; }
+
+        .text-delete { color: #ef4444; background: none; border: none; font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+        .text-delete:hover { text-decoration: underline; }
+
+        /* Notifications */
+        .notification {
+          position: fixed; top: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 8px;
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 100; font-size: 0.9rem;
+        }
+        .notification.success { background: #10b981; color: white; }
+        .notification.error { background: #ef4444; color: white; }
+
+        /* Loaders */
+        .spinner { width: 20px; height: 20px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin: auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .skeleton-loader { display: flex; flex-direction: column; gap: 1rem; }
+        .skeleton-line { height: 40px; background: #f1f5f9; border-radius: 8px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        @media (max-width: 1024px) {
+          .grid-container { grid-template-columns: 1fr; }
+          .sidebar { display: none; }
         }
       `}</style>
     </div>
