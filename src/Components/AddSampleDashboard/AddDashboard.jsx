@@ -616,6 +616,62 @@ const btnDelete = {
   backgroundColor: "#ef4444",
   color: "#fff",
 };
+const methodDefaults = {
+  "Prop 65": {
+    unit: "ppb",
+    parameters: ["Al", "As", "Sb"]
+  },
+  "NSF 42": {
+    unit: "ppb",
+    parameters: ["Al", "As", "Sb"]
+  },
+  "NSF 61": {
+    unit: "ppb",
+    parameters: ["Al", "As", "Sb"]
+  },
+  "CBT": {
+    unit: "ppb",
+    parameters: ["Al", "As", "Sb", "Fe"]
+  },
+  "FCC": {
+    unit: "ppb",
+    parameters: ["Hg", "As", "Pb"]
+  },
+  "EP": {
+    unit: "ppb",
+    parameters: ["As","Cd","Hg","Pd","Cu","Zn"]
+  },
+  "EN": {
+    unit: "ppb",
+    parameters: ["As","Cd","Hg","Pd","Cu","Zn"]
+  },
+  "EDLC": {
+    unit: "ppm in A/C",
+    parameters: ["Ca","Fe","K","Mg","Na"]
+  }
+};
+const handleMethodChange = (method) => {
+  const defaults = methodDefaults[method];
+
+  setSForm((prev) => {
+    let newResults = { ...prev.results };
+
+    // Only auto-fill parameters if empty (don't override user edits)
+    if (Object.keys(newResults).length === 0 && defaults?.parameters) {
+      newResults = {};
+      defaults.parameters.forEach((p) => {
+        newResults[p] = "";
+      });
+    }
+
+    return {
+      ...prev,
+      testMethod: method,
+      unitNumber: prev.unitNumber || defaults?.unit || "",
+      results: newResults
+    };
+  });
+};
 
   return (
     <div style={{ display: "flex", height: "100vh", background: "#f3f4f6", fontFamily: "'Segoe UI', system-ui, sans-serif", fontSize: 13, color: "#111827" }}>
@@ -804,7 +860,12 @@ const btnDelete = {
                   </div>
                   <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 13 }}>
                     <TextInput label="Sample ID" value={sForm.sampleId} onChange={v => setSForm(p => ({ ...p, sampleId: v }))} placeholder="S-001"  />
-                    <TextInput label="Test Method" value={sForm.testMethod} onChange={v => setSForm(p => ({ ...p, testMethod: v }))} placeholder="ISO 4406"   />
+                    <TextInput
+  label="Test Method"
+  value={sForm.testMethod}
+  onChange={handleMethodChange}
+  placeholder="ISO 4406"
+/>
                     <TextInput label="Unit " value={sForm.unitNumber} onChange={v => setSForm(p => ({ ...p, unitNumber: v }))} placeholder="UNT-001"  />
 
                     <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 13 }}>
