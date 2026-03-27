@@ -360,7 +360,7 @@ export default function PublicSample() {
             <IC label="From"            value={from} />
             <IC label="To"              value={to} />
             <IC label="Remarks"         value={v(data.remarks)} />
-            <IC label="Assigned To"     value={assignee} />
+            <IC label="Analyze By"     value={v(data.analysedBy)} />
           </div>
         </div>
 
@@ -390,10 +390,10 @@ export default function PublicSample() {
                   </div>
                   <div className="sc-body">
                     <div className="sc-grid">
-                      <SF label="Unit No"     value={v(s?.unitNumber)} />
-                      <SF label="Analysed By" value={v(s?.analysedBy)} />
-                      <SF label="Completed"   value={completed} />
-                      <SF label="Remarks"     value={v(s?.remarks)} />
+                      <SF label="Unit "     value={v(s?.unitNumber)} />
+                      <SF label="Analysed By" value={v(data.analysedBy)} />
+                      
+                       
                     </div>
                     {hasR && (
                       <div className="res-wrap">
