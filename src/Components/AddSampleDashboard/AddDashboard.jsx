@@ -212,9 +212,9 @@ const generatePDF = (sample) => {
     ["Sample IN Date", sample.sampleInDate || 'N/A'],
     ["Sample IN Time", sample.sampleInTime || 'N/A'],
     ["Remarks", sample.remarks || 'N/A'],
-    ["Analysed By", sample.analysedBy || '-'],
-    ["Received Date", sample.receivedDate || '-'],
-    ["Received Time", sample.receivedTime || '-']
+    ["Analysed By", sample.analysedBy || 'not set by lab'],
+    ["Received Date", sample.receivedDate || 'not received yet'],
+    ["Received Time", sample.receivedTime || 'not recevied yet']
   ];
 
   const col1X = 16;
@@ -1022,65 +1022,80 @@ const btnDelete = {
 
           <div><b>Request Ref</b><br />{sample.requestRefNo}</div>
           <div><b>Sample Ref</b><br />{sample.sampleRefNo}</div>
-          <div><b>Date</b><br />{sample.sampleInDate}</div>
-          <div><b>Time</b><br />{sample.sampleInTime}</div>
+           <div><b>From</b><br />{sample.from}</div>
+           <div><b>To</b><br />{sample.to}</div>
+           <div><b>Sample Route </b><br />{sample.sampleRoute}</div>
+           <div><b>Remarks</b><br />{sample.remarks || "no remarks"}</div>
+          <div><b>Sample in Date</b><br />{sample.sampleInDate}</div>
+          <div><b>Sample In Time</b><br />{sample.sampleInTime}</div>
+          <div><b>Sample Received Date</b><br />{sample.receivedDate}</div>
+          <div><b>Sample Received Time</b><br />{sample.receivedTime}</div>
+          <div  style={{ color: 'green' }}>
+  <b>Sample Status</b>
+  <br />
+  {sample.isFinalized ? "Finalized" : "Not Finalized"}
+</div>
+         <div style={{ color: 'red' }}>
+  <b>Analyzed By</b>
+  <br />
+  {sample.analysedBy || "Sample has not analyzed yet!"}
+</div>
 
         </div>
 
 
         {/* CHILD SAMPLES TABLE */}
-        <div style={{ padding: 16 }}>
+<div style={{ padding: 16 }}>
 
-          <table style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: 12
-          }}>
+  <table style={{
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: 12,
+    textAlign: "left"
+  }}>
 
-            <thead>
-              <tr style={{ background: "#f9fafb" }}>
-                <th>Sample ID</th>
-                <th>Method</th>
-                <th>Unit</th>
-                <th>Results</th>
-              </tr>
-            </thead>
+    <thead>
+      <tr style={{ background: "#f9fafb" }}>
+        <th style={{ padding: "8px 12px", borderBottom: "1px solid #ccc" }}>Sample ID</th>
+        <th style={{ padding: "8px 12px", borderBottom: "1px solid #ccc" }}>Method</th>
+        <th style={{ padding: "8px 12px", borderBottom: "1px solid #ccc" }}>Unit</th>
+        <th style={{ padding: "8px 12px", borderBottom: "1px solid #ccc" }}>Results</th>
+      </tr>
+    </thead>
 
-            <tbody>
+    <tbody>
+      {sample.samples.map((s, idx) => (
+        <tr key={idx} style={{ borderTop: "1px solid #eee" }}>
+          <td style={{ padding: "8px 12px" }}>{s.sampleId || "-"}</td>
+          <td style={{ padding: "8px 12px" }}>{s.testMethod || "-"}</td>
+          <td style={{ padding: "8px 12px" }}>{s.unitNumber || "-"}</td>
+          <td style={{ padding: "8px 12px" }}>
+            {s.results && Object.keys(s.results).length > 0 ? (
+              <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                {Object.entries(s.results).map(([k, v]) => (
+                  <li key={k} style={{
+                    background: "#eff6ff",
+                    marginBottom: 4,
+                    padding: "4px 6px",
+                    borderRadius: 4,
+                    display: "inline-block",
+                    minWidth: 60
+                  }}>
+                    <b>{k}</b>: {v}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <span style={{ color: "#999" }}>No results</span>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
 
-              {sample.samples.map((s, idx) => (
+  </table>
 
-                <tr key={idx} style={{ borderTop: "1px solid #eee" }}>
-
-                  <td>{s.sampleId}</td>
-                  <td>{s.testMethod}</td>
-                  <td>{s.unitNumber}</td>
-
-                  <td>
-
-                    {Object.entries(s.results || {}).map(([k, v]) => (
-                      <span key={k}
-                        style={{
-                          marginRight: 6,
-                          background: "#eff6ff",
-                          padding: "3px 6px",
-                          borderRadius: 4
-                        }}>
-                        {k}:{v}
-                      </span>
-                    ))}
-
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
-
-        </div>
+</div>
 
       </div>
 

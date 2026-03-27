@@ -360,7 +360,7 @@ export default function PublicSample() {
             <IC label="From"            value={from} />
             <IC label="To"              value={to} />
             <IC label="Remarks"         value={v(data.remarks)} />
-            <IC label="Analyze By"     value={v(data.analysedBy)} />
+            <IC label="Analyze By"     value={v(data.analysedBy)|| "not set yet"} />
           </div>
         </div>
 
@@ -391,7 +391,7 @@ export default function PublicSample() {
                   <div className="sc-body">
                     <div className="sc-grid">
                       <SF label="Unit "     value={v(s?.unitNumber)} />
-                      <SF label="Analysed By" value={v(data.analysedBy)} />
+                      <SF label="Analysed By" value={v(data.analysedBy)||"not set yet"} />
                       
                        
                     </div>
